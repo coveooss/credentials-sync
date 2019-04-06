@@ -6,6 +6,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	showSensitiveAttributes bool
+)
+
 var listCredentialsCmd = &cobra.Command{
 	Use:   "list-credentials",
 	Short: "Resolves and lists all configured credentials",
@@ -15,7 +19,12 @@ var listCredentialsCmd = &cobra.Command{
 			panic(err)
 		}
 		for _, credentials := range allCredentials {
-			fmt.Println(credentials.ToString())
+			fmt.Println(credentials.ToString(showSensitiveAttributes))
 		}
 	},
+}
+
+func initListCredentials() {
+	listCredentialsCmd.Flags().BoolVarP(&showSensitiveAttributes, "show-sensitive", "s", false, "show sensitive credentials attributes, such as passwords")
+	rootCmd.AddCommand(listCredentialsCmd)
 }

@@ -47,7 +47,8 @@ var rootCmd = &cobra.Command{
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&configurationFile, "config", "c", "", "configuration file")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
-	rootCmd.AddCommand(listCredentialsCmd, listTargetsCmd, syncCmd, validateCmd)
+	initListCredentials()
+	rootCmd.AddCommand(listTargetsCmd, syncCmd, validateCmd)
 }
 
 func Execute(commit string, date string, version string) {

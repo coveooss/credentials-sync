@@ -1,5 +1,10 @@
 package credentials
 
+import (
+	"fmt"
+	"sort"
+)
+
 type Source interface {
 	Credentials() ([]Credentials, error)
 	Type() string
@@ -37,13 +42,30 @@ func (sc *SourcesConfiguration) ValidateConfiguration() bool {
 }
 
 func (sc *SourcesConfiguration) Credentials() ([]Credentials, error) {
-	credentials := []Credentials{}
+	credentialsList := []Credentials{}
+
+	// Fetch all credentials
 	for _, source := range sc.AllSources() {
-		if newCredentials, err := source.Credentials(); err != nil {
+		newCredentials, err := source.Credentials()
+		if err != nil {
 			return nil, err
-		} else {
-			credentials = append(credentials, newCredentials...)
 		}
+		credentialsList = append(credentialsList, newCredentials...)
 	}
-	return credentials, nil
+
+	// Sort credentials by ID
+	sort.Slice(credentialsList[:], func(i, j int) bool {
+		return credentialsList[i].GetID() < credentialsList[j].GetID()
+	})
+
+	// Throw an error if IDs are not unique
+	credentialIds := map[string]bool{}
+	for _, cred := range credentialsList {
+		if _, ok := credentialIds[cred.GetID()]; ok {
+			return nil, fmt.Errorf("There more than one credentials with this ID: %s", cred.GetID())
+		}
+		credentialIds[cred.GetID()] = true
+	}
+
+	return credentialsList, nil
 }

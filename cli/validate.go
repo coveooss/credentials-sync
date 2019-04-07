@@ -1,7 +1,7 @@
 package cli
 
 import (
-	"os"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +11,8 @@ var validateCmd = &cobra.Command{
 	Short: "Parses and validates the given configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !configuration.Sources.ValidateConfiguration() {
-			os.Exit(1)
+			log.Fatal("The config file is invalid")
 		}
+		log.Info("The config file is valid!")
 	},
 }

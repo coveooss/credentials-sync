@@ -27,17 +27,14 @@ var rootCmd = &cobra.Command{
 	Support Jenkins only for now.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		configuration = &sync.Configuration{}
-		if configurationFile != "" {
-			var (
-				err         error
-				fileContent []byte
-			)
-			if fileContent, err = ioutil.ReadFile(configurationFile); err != nil {
-				return err
-			}
-			return yaml.Unmarshal(fileContent, configuration)
+		var (
+			err         error
+			fileContent []byte
+		)
+		if fileContent, err = ioutil.ReadFile(configurationFile); err != nil {
+			return err
 		}
-		return nil
+		return yaml.Unmarshal(fileContent, configuration)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
@@ -46,6 +43,7 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&configurationFile, "config", "c", "", "configuration file")
+	rootCmd.MarkPersistentFlagRequired("config")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
 	initListCredentials()
 	rootCmd.AddCommand(listTargetsCmd, syncCmd, validateCmd)

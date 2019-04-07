@@ -11,6 +11,7 @@ import (
 // Credentials defines the methods that can be called by all types of credentials
 type Credentials interface {
 	BaseValidate() bool
+	GetID() string
 	ToString(bool) string
 	Validate() bool
 }
@@ -24,7 +25,7 @@ type Base struct {
 
 // BaseToString prints out the credentials fields common to all types of credentials
 func (credBase *Base) BaseToString() string {
-	return fmt.Sprintf("Type: %s, ID: %s, Description: %s", credBase.CredType, credBase.ID, credBase.Description)
+	return fmt.Sprintf("%s -> Type: %s, Description: %s", credBase.ID, credBase.CredType, credBase.Description)
 }
 
 // BaseValidate verifies that the credentials fields common to all types of credentials contain valid values
@@ -39,6 +40,11 @@ func (credBase *Base) BaseValidate() bool {
 		log.Errorf("Credentials (%s) has no type. This is probably a bug in the software", credBase.ID)
 	}
 	return credBase.ID != "" && credBase.Description != "" && credBase.CredType != ""
+}
+
+// GetID returns a credentials' ID
+func (credBase *Base) GetID() string {
+	return credBase.ID
 }
 
 // ParseCredentials transforms a list of maps into a list of Credentials
@@ -71,6 +77,8 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 	switch credentialsType {
 	case "usernamepassword":
 		credentials = NewUsernamePassword()
+	case "secret":
+		credentials = NewSecretText()
 	default:
 		return nil, errors.New("Unknown credentials type")
 	}

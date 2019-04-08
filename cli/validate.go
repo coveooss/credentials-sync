@@ -11,7 +11,10 @@ var validateCmd = &cobra.Command{
 	Short: "Parses and validates the given configuration",
 	Run: func(cmd *cobra.Command, args []string) {
 		if !configuration.Sources.ValidateConfiguration() {
-			log.Fatal("The config file is invalid")
+			log.Fatal("The sources section of the config file is invalid")
+		}
+		if !configuration.Targets.ValidateConfiguration() {
+			log.Fatal("The targets section of the config file is invalid")
 		}
 		log.Info("The config file is valid!")
 	},

@@ -12,9 +12,9 @@ type Source interface {
 }
 
 type SourcesConfiguration struct {
-	AWSS3Sources  []*AWSS3Source  `yaml:"aws_s3"`
-	AWSSSMSources []*AWSSSMSource `yaml:"aws_ssm"`
-	LocalSources  []*LocalSource  `yaml:"local"`
+	AWSS3Sources  []*AWSS3Source  `mapstructure:"aws_s3"`
+	AWSSSMSources []*AWSSSMSource `mapstructure:"aws_ssm"`
+	LocalSources  []*LocalSource  `mapstructure:"local"`
 }
 
 func (sc *SourcesConfiguration) AllSources() []Source {

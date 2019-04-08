@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/mitchellh/mapstructure"
+
 	"gopkg.in/yaml.v2"
 
 	"github.com/coveo/credentials-sync/sync"
@@ -27,6 +29,7 @@ var rootCmd = &cobra.Command{
 	Support Jenkins only for now.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		configuration = &sync.Configuration{}
+		configurationDict := map[string]interface{}{}
 		var (
 			err         error
 			fileContent []byte
@@ -34,7 +37,10 @@ var rootCmd = &cobra.Command{
 		if fileContent, err = ioutil.ReadFile(configurationFile); err != nil {
 			return err
 		}
-		return yaml.Unmarshal(fileContent, configuration)
+		if err = yaml.Unmarshal(fileContent, configurationDict); err != nil {
+			return err
+		}
+		return mapstructure.Decode(configurationDict, configuration)
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()

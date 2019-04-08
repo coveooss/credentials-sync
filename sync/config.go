@@ -6,6 +6,6 @@ import (
 )
 
 type Configuration struct {
-	Sources *credentials.SourcesConfiguration `yaml:"sources"`
-	Targets *targets.Configuration            `yaml:"targets"`
+	Sources *credentials.SourcesConfiguration
+	Targets *targets.Configuration
 }

@@ -21,6 +21,9 @@ type Base struct {
 	ID          string
 	Description string
 	CredType    string
+
+	// For multi-value fields. Such as SSM
+	Value string
 }
 
 // BaseToString prints out the credentials fields common to all types of credentials

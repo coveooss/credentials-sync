@@ -9,7 +9,7 @@ import (
 )
 
 type LocalSource struct {
-	File string `yaml:"file"`
+	File string
 }
 
 func (source *LocalSource) Credentials() ([]Credentials, error) {

@@ -10,7 +10,8 @@ import (
 
 type Target interface {
 	BaseValidateConfiguration() bool
-	Initialize() error
+	GetName() string
+	Initialize([]credentials.Credentials) error
 	ToString() string
 	UpdateListOfCredentials([]*credentials.Credentials) error
 	UpdateCredentials(*credentials.Credentials) error

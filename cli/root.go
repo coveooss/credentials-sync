@@ -28,7 +28,7 @@ var rootCmd = &cobra.Command{
 	targets that do not support external credentials.
 	Support Jenkins only for now.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		configuration = &sync.Configuration{}
+		configuration = sync.NewConfiguration()
 		configurationDict := map[string]interface{}{}
 		var (
 			err         error

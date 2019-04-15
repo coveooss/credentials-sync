@@ -15,6 +15,8 @@ type SourcesConfiguration struct {
 	AWSS3Sources  []*AWSS3Source  `mapstructure:"aws_s3"`
 	AWSSSMSources []*AWSSSMSource `mapstructure:"aws_ssm"`
 	LocalSources  []*LocalSource  `mapstructure:"local"`
+
+	credentialsList []Credentials
 }
 
 func (sc *SourcesConfiguration) AllSources() []Source {
@@ -42,7 +44,11 @@ func (sc *SourcesConfiguration) ValidateConfiguration() bool {
 }
 
 func (sc *SourcesConfiguration) Credentials() ([]Credentials, error) {
-	credentialsList := []Credentials{}
+	if sc.credentialsList != nil {
+		return sc.credentialsList, nil
+	}
+
+	sc.credentialsList = []Credentials{}
 
 	// Fetch all credentials
 	for _, source := range sc.AllSources() {
@@ -50,22 +56,22 @@ func (sc *SourcesConfiguration) Credentials() ([]Credentials, error) {
 		if err != nil {
 			return nil, err
 		}
-		credentialsList = append(credentialsList, newCredentials...)
+		sc.credentialsList = append(sc.credentialsList, newCredentials...)
 	}
 
 	// Sort credentials by ID
-	sort.Slice(credentialsList[:], func(i, j int) bool {
-		return credentialsList[i].GetID() < credentialsList[j].GetID()
+	sort.Slice(sc.credentialsList[:], func(i, j int) bool {
+		return sc.credentialsList[i].GetID() < sc.credentialsList[j].GetID()
 	})
 
 	// Throw an error if IDs are not unique
 	credentialIds := map[string]bool{}
-	for _, cred := range credentialsList {
+	for _, cred := range sc.credentialsList {
 		if _, ok := credentialIds[cred.GetID()]; ok {
 			return nil, fmt.Errorf("There more than one credentials with this ID: %s", cred.GetID())
 		}
 		credentialIds[cred.GetID()] = true
 	}
 
-	return credentialsList, nil
+	return sc.credentialsList, nil
 }

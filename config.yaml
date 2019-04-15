@@ -1,0 +1,20 @@
+sources:
+  # aws_s3:
+  #   - bucket: coveo-ndev-config
+  #     key: test123
+  # aws_ssm:
+  #   - path: /hello/123
+  local:
+    - file: 123.json
+targets:
+  jenkins:
+    - name: infrabuilds
+      url: https://infrabuilds.dev.cloud.coveo.com
+      tags: 
+        hello: "123"
+        hello2: wge
+    - name: infrabuilds2
+      url: https://infrabuilds2.dev.cloud.coveo.com
+      tags: 
+        hello: "123"
+        hello2: wge

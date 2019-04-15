@@ -14,17 +14,32 @@ import (
 type JenkinsTarget struct {
 	Base `mapstructure:",squash"`
 
-	LoginCredentials *credentials.Credentials
+	CredentialsID    *string `mapstructure:"credentials_id"`
 	URL              string
-	SecureConnection bool
+	SecureConnection bool `mapstructure:"secure_connections"`
 
 	client              *gojenkins.Jenkins
 	existingCredentials []credentials.Credentials
+	loginCredentials    credentials.Credentials
 }
 
-func (jenkins *JenkinsTarget) Initialize() error {
-	auth := (*jenkins.LoginCredentials).(*credentials.UsernamePasswordCredentials)
-	jenkins.client = gojenkins.CreateJenkins(jenkins.URL, auth.Username, auth.Password)
+func (jenkins *JenkinsTarget) GetName() string {
+	return jenkins.Name
+}
+
+func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credentials) error {
+	for _, credentials := range allCredentials {
+		if jenkins.CredentialsID != nil && credentials.GetID() == *jenkins.CredentialsID {
+			jenkins.loginCredentials = credentials
+		}
+	}
+	if jenkins.loginCredentials != nil {
+		auth := jenkins.loginCredentials.(*credentials.UsernamePasswordCredentials)
+		jenkins.client = gojenkins.CreateJenkins(jenkins.URL, auth.Username, auth.Password)
+	} else {
+		jenkins.client = gojenkins.CreateJenkins(jenkins.URL)
+	}
+
 	jenkins.client.Requester.SslVerify = jenkins.SecureConnection
 	jenkins.client.Init()
 	var err error

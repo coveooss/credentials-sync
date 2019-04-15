@@ -1,0 +1,19 @@
+[
+    {
+        "type": "usernamepassword",
+        "id": "hello3",
+        "description": "hello"
+    },
+    {
+        "type": "usernamepassword",
+        "id": "hello5",
+        "description": "hello",
+        "value": "123:1234"
+    },
+    {
+        "type": "secret",
+        "id": "hello4",
+        "description": "hello",
+        "secret": ""
+    }
+]

@@ -11,6 +11,8 @@ import (
 	"github.com/coveo/credentials-sync/credentials"
 )
 
+const credentialsDomain = "_"
+
 type JenkinsTarget struct {
 	Base `mapstructure:",squash"`
 
@@ -19,7 +21,8 @@ type JenkinsTarget struct {
 	SecureConnection bool `mapstructure:"secure_connections"`
 
 	client              *gojenkins.Jenkins
-	existingCredentials []credentials.Credentials
+	credentialsManager  *gojenkins.CredentialsManager
+	existingCredentials []string
 	loginCredentials    credentials.Credentials
 }
 
@@ -27,25 +30,9 @@ func (jenkins *JenkinsTarget) GetName() string {
 	return jenkins.Name
 }
 
-func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credentials) error {
-	for _, credentials := range allCredentials {
-		if jenkins.CredentialsID != nil && credentials.GetID() == *jenkins.CredentialsID {
-			jenkins.loginCredentials = credentials
-		}
-	}
-	if jenkins.loginCredentials != nil {
-		auth := jenkins.loginCredentials.(*credentials.UsernamePasswordCredentials)
-		jenkins.client = gojenkins.CreateJenkins(jenkins.URL, auth.Username, auth.Password)
-	} else {
-		jenkins.client = gojenkins.CreateJenkins(jenkins.URL)
-	}
-
-	jenkins.client.Requester.SslVerify = jenkins.SecureConnection
-	jenkins.client.Init()
-	var err error
+func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credentials) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Error("Recovered the following error while initializing Jenkins: ", r)
 			switch x := r.(type) {
 			case string:
 				err = errors.New(x)
@@ -56,14 +43,43 @@ func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credential
 			}
 		}
 	}()
+	for _, credentials := range allCredentials {
+		if jenkins.CredentialsID != nil && credentials.GetID() == *jenkins.CredentialsID {
+			jenkins.loginCredentials = credentials
+		}
+	}
+	if jenkins.loginCredentials != nil {
+		auth := jenkins.loginCredentials.(*credentials.UsernamePasswordCredentials)
+		jenkins.client = gojenkins.CreateJenkins(nil, jenkins.URL, auth.Username, auth.Password)
+	} else {
+		jenkins.client = gojenkins.CreateJenkins(nil, jenkins.URL)
+	}
+
+	jenkins.client.Requester.SslVerify = jenkins.SecureConnection
+	jenkins.client.Init()
+	jenkins.credentialsManager = &gojenkins.CredentialsManager{
+		J: jenkins.client,
+	}
+
+	jenkins.existingCredentials, err = jenkins.credentialsManager.List(credentialsDomain)
+
 	return err
+}
+
+func (jenkins *JenkinsTarget) HasCredentials(cred credentials.Credentials) bool {
+	for _, id := range jenkins.existingCredentials {
+		if cred.GetID() == id {
+			return true
+		}
+	}
+	return false
 }
 
 func (jenkins *JenkinsTarget) ToString() string {
 	return fmt.Sprintf("%s (Jenkins) - %s", jenkins.BaseToString(), jenkins.URL)
 }
 
-func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []*credentials.Credentials) error {
+func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []credentials.Credentials) error {
 	for _, credentials := range listOfCredentials {
 		if err := jenkins.UpdateCredentials(credentials); err != nil {
 			return err
@@ -72,8 +88,11 @@ func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []*crede
 	return nil
 }
 
-func (jenkins *JenkinsTarget) UpdateCredentials(credentials *credentials.Credentials) error {
-	return nil
+func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) error {
+	if jenkins.HasCredentials(cred) {
+		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetID(), cred)
+	}
+	return jenkins.credentialsManager.Add(credentialsDomain, cred)
 }
 
 func (jenkins *JenkinsTarget) ValidateConfiguration() bool {

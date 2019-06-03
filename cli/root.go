@@ -42,9 +42,6 @@ var rootCmd = &cobra.Command{
 		}
 		return mapstructure.Decode(configurationDict, configuration)
 	},
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
 }
 
 func init() {

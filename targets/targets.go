@@ -13,8 +13,8 @@ type Target interface {
 	GetName() string
 	Initialize([]credentials.Credentials) error
 	ToString() string
-	UpdateListOfCredentials([]*credentials.Credentials) error
-	UpdateCredentials(*credentials.Credentials) error
+	UpdateListOfCredentials([]credentials.Credentials) error
+	UpdateCredentials(credentials.Credentials) error
 	ValidateConfiguration() bool
 }
 

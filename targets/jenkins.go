@@ -89,10 +89,14 @@ func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []creden
 }
 
 func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) error {
-	if jenkins.HasCredentials(cred) {
-		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetID(), cred)
+	jenkinsCred := toJenkinsCredential(cred)
+	if jenkinsCred == nil {
+		return fmt.Errorf("Unable to create jenkins credentials from %s", cred.GetID())
 	}
-	return jenkins.credentialsManager.Add(credentialsDomain, cred)
+	if jenkins.HasCredentials(cred) {
+		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetID(), jenkinsCred)
+	}
+	return jenkins.credentialsManager.Add(credentialsDomain, jenkinsCred)
 }
 
 func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
@@ -101,4 +105,25 @@ func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
 		return false
 	}
 	return true
+}
+
+func toJenkinsCredential(creds credentials.Credentials) interface{} {
+	switch creds.(type) {
+	case *credentials.SecretTextCredentials:
+		castCreds := creds.(*credentials.SecretTextCredentials)
+		return &gojenkins.StringCredentials{
+			ID:          creds.GetID(),
+			Description: castCreds.Description,
+			Secret:      castCreds.Secret,
+		}
+	case *credentials.UsernamePasswordCredentials:
+		castCreds := creds.(*credentials.UsernamePasswordCredentials)
+		return &gojenkins.UsernameCredentials{
+			ID:          castCreds.GetID(),
+			Description: castCreds.Description,
+			Username:    castCreds.Username,
+			Password:    castCreds.Password,
+		}
+	}
+	return nil
 }

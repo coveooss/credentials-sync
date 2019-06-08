@@ -78,6 +78,7 @@ func syncCredentials(target targets.Target, credentialsList []credentials.Creden
 		credChannel <- true
 		go func(cred credentials.Credentials) {
 			defer func() { <-credChannel }()
+			log.Infof("[%s] Syncing %s", target.GetName(), cred.GetID())
 			if err := target.UpdateCredentials(cred); err != nil {
 				message := fmt.Sprintf("Failed to send credential %s to %s: %v", cred.GetID(), target.GetName(), err)
 				if panicOnError {

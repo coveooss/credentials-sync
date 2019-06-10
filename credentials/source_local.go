@@ -32,12 +32,19 @@ func getCredentialsFromFile(fileName string) ([]Credentials, error) {
 	var (
 		err         error
 		fileContent []byte
-		yamlContent []map[string]interface{}
 	)
 	if fileContent, err = ioutil.ReadFile(fileName); err != nil {
 		return nil, err
 	}
-	if err = yaml.Unmarshal(fileContent, &yamlContent); err != nil {
+	return getCredentialsFromBytes(fileContent)
+}
+
+func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
+	var (
+		err         error
+		yamlContent []map[string]interface{}
+	)
+	if err = yaml.Unmarshal(byteArray, &yamlContent); err != nil {
 		return nil, err
 	}
 	return ParseCredentials(yamlContent)

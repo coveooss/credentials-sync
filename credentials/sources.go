@@ -12,9 +12,10 @@ type Source interface {
 }
 
 type SourcesConfiguration struct {
-	AWSS3Sources  []*AWSS3Source  `mapstructure:"aws_s3"`
-	AWSSSMSources []*AWSSSMSource `mapstructure:"aws_ssm"`
-	LocalSources  []*LocalSource  `mapstructure:"local"`
+	AWSS3Sources            []*AWSS3Source             `mapstructure:"aws_s3"`
+	AWSSecretsManagerSource []*AWSSecretsManagerSource `mapstructure:"aws_secretsmanager"`
+	AWSSSMSources           []*AWSSSMSource            `mapstructure:"aws_ssm"`
+	LocalSources            []*LocalSource             `mapstructure:"local"`
 
 	credentialsList []Credentials
 }

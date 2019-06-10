@@ -2,13 +2,10 @@ package credentials
 
 import (
 	"io/ioutil"
-	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/aws/aws-sdk-go/service/s3/s3manager"
-	log "github.com/sirupsen/logrus"
 )
 
 type AWSS3Source struct {
@@ -17,25 +14,24 @@ type AWSS3Source struct {
 }
 
 func (source *AWSS3Source) Credentials() ([]Credentials, error) {
-	downloader := s3manager.NewDownloader(session.New())
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+	client := s3.New(sess)
 
-	file, err := ioutil.TempFile("", "credentials_sync_s3")
-	defer os.Remove(file.Name())
+	response, err := client.GetObject(&s3.GetObjectInput{
+		Bucket: aws.String(source.Bucket),
+		Key:    aws.String(source.Key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	numBytes, err := downloader.Download(file,
-		&s3.GetObjectInput{
-			Bucket: aws.String(source.Bucket),
-			Key:    aws.String(source.Key),
-		})
-	if err != nil {
-		return nil, err
-	}
-	log.Info("Downloaded", file.Name(), numBytes, "bytes")
-
-	return getCredentialsFromFile(file.Name())
+	return getCredentialsFromBytes(body)
 }
 
 func (source *AWSS3Source) Type() string {
@@ -43,5 +39,5 @@ func (source *AWSS3Source) Type() string {
 }
 
 func (source *AWSS3Source) ValidateConfiguration() bool {
-	return true
+	return len(source.Bucket) > 0 && len(source.Key) > 0
 }

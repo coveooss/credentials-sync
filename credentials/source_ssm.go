@@ -30,9 +30,10 @@ func (source *AWSSSMSource) Credentials() ([]Credentials, error) {
 			for _, parameter := range page.Parameters {
 				splitName := strings.Split(*parameter.Name, "/")
 				credentialsMap := map[string]interface{}{
-					"full_name": *parameter.Name,
-					"id":        splitName[len(splitName)-1],
-					"value":     *parameter.Value,
+					"full_name":   *parameter.Name,
+					"id":          splitName[len(splitName)-1],
+					"description": splitName[len(splitName)-1],
+					"value":       *parameter.Value,
 				}
 				credentialsMaps = append(credentialsMaps, credentialsMap)
 			}

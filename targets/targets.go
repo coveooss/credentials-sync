@@ -11,6 +11,7 @@ import (
 type Target interface {
 	BaseValidateConfiguration() bool
 	GetName() string
+	GetTags() map[string]string
 	Initialize([]credentials.Credentials) error
 	ToString() string
 	UpdateListOfCredentials([]credentials.Credentials) error
@@ -38,6 +39,10 @@ func (targetBase *Base) BaseValidateConfiguration() bool {
 		return false
 	}
 	return true
+}
+
+func (targetBase *Base) GetTags() map[string]string {
+	return targetBase.Tags
 }
 
 type Configuration struct {

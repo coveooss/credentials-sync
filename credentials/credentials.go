@@ -12,15 +12,24 @@ import (
 type Credentials interface {
 	BaseValidate() bool
 	GetID() string
+	ShouldSync(targetTags map[string]string) bool
 	ToString(bool) string
 	Validate() bool
+}
+
+type targetTagsMatcher struct {
+	DoMatch   map[string]interface{} `mapstructure:"do_match"`
+	DontMatch map[string]interface{} `mapstructure:"dont_match"`
 }
 
 // Base defines that fields that are common to all types of credentials
 type Base struct {
 	ID          string
 	Description string
-	CredType    string
+	TargetTags  targetTagsMatcher `mapstructure:"target_tags"`
+
+	// Field set by constructor
+	CredType string
 
 	// For multi-value fields. Such as SSM
 	Value string
@@ -48,6 +57,32 @@ func (credBase *Base) BaseValidate() bool {
 // GetID returns a credentials' ID
 func (credBase *Base) GetID() string {
 	return credBase.ID
+}
+
+func (credBase *Base) ShouldSync(targetTags map[string]string) bool {
+	findMatch := func(match map[string]interface{}) bool {
+		for key, value := range match {
+			for tagKey, tag := range targetTags {
+				if key != tagKey {
+					continue
+				}
+				if valueAsString, ok := value.(string); ok {
+					if valueAsString == tag {
+						return true
+					}
+				} else if valueAsList, ok := value.([]string); ok {
+					if listContainsElement(valueAsList, tag) {
+						return true
+					}
+				} else {
+					log.Warningf("%s ignored. Its value should either be a string or a list of string", key)
+				}
+			}
+		}
+		return false
+	}
+
+	return !findMatch(credBase.TargetTags.DontMatch) && (len(credBase.TargetTags.DoMatch) == 0 || findMatch(credBase.TargetTags.DoMatch))
 }
 
 // ParseCredentials transforms a list of maps into a list of Credentials
@@ -90,4 +125,13 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 		return nil, errors.New("The following credentials failed to validate: \n	" + credentials.ToString(false))
 	}
 	return credentials, nil
+}
+
+func listContainsElement(list []string, element string) bool {
+	for _, listElement := range list {
+		if listElement == element {
+			return true
+		}
+	}
+	return false
 }

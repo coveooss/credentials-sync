@@ -5,7 +5,6 @@ import (
 	"os"
 
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/yaml.v2"
 )
 
 type LocalSource struct {
@@ -37,15 +36,4 @@ func getCredentialsFromFile(fileName string) ([]Credentials, error) {
 		return nil, err
 	}
 	return getCredentialsFromBytes(fileContent)
-}
-
-func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
-	var (
-		err         error
-		yamlContent []map[string]interface{}
-	)
-	if err = yaml.Unmarshal(byteArray, &yamlContent); err != nil {
-		return nil, err
-	}
-	return ParseCredentials(yamlContent)
 }

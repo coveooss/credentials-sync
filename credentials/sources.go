@@ -3,6 +3,8 @@ package credentials
 import (
 	"fmt"
 	"sort"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Source interface {
@@ -75,4 +77,23 @@ func (sc *SourcesConfiguration) Credentials() ([]Credentials, error) {
 	}
 
 	return sc.credentialsList, nil
+}
+
+func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
+	var (
+		err               error
+		yamlContentAsList []map[string]interface{}
+		yamlContentAsMap  map[string]map[string]interface{}
+	)
+	if err = yaml.Unmarshal(byteArray, &yamlContentAsList); err != nil {
+		if err = yaml.Unmarshal(byteArray, &yamlContentAsMap); err != nil {
+			return nil, err
+		}
+		yamlContentAsList = []map[string]interface{}{}
+		for id, value := range yamlContentAsMap {
+			value["id"] = id
+			yamlContentAsList = append(yamlContentAsList, value)
+		}
+	}
+	return ParseCredentials(yamlContentAsList)
 }

@@ -10,26 +10,25 @@ func TestShouldSyncCredentials(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		name             string
-		wantedTargetTags targetTagsMatcher
-		targetTags       map[string]string
-		expected         bool
+		name       string
+		creds      *Base
+		targetName string
+		targetTags map[string]string
+		expected   bool
 	}{
 		{
-			name: "No tags",
-			wantedTargetTags: targetTagsMatcher{
-				DoMatch:   map[string]interface{}{},
-				DontMatch: map[string]interface{}{},
-			},
-			targetTags: map[string]string{},
-			expected:   true,
+			name:     "No tags",
+			creds:    &Base{},
+			expected: true,
 		},
 		{
-			name: "No filter",
-			wantedTargetTags: targetTagsMatcher{
-				DoMatch:   map[string]interface{}{},
-				DontMatch: map[string]interface{}{},
-			},
+			name:     "Cred that shouldn't be synced",
+			creds:    &Base{NoSync: true},
+			expected: false,
+		},
+		{
+			name:  "No filter",
+			creds: &Base{},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -37,13 +36,12 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "Match",
-			wantedTargetTags: targetTagsMatcher{
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DoMatch: map[string]interface{}{
 					"MyFirstTag": "MyValue",
 					"MyTag":      "MyValue",
 				},
-				DontMatch: map[string]interface{}{},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -51,12 +49,11 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "Match List Item",
-			wantedTargetTags: targetTagsMatcher{
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DoMatch: map[string]interface{}{
 					"MyTag": []string{"FirstValue", "MyValue"},
 				},
-				DontMatch: map[string]interface{}{},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -64,12 +61,11 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "List Without Matches",
-			wantedTargetTags: targetTagsMatcher{
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DoMatch: map[string]interface{}{
 					"MyTag": []string{"FirstValue", "SecondValue"},
 				},
-				DontMatch: map[string]interface{}{},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -77,12 +73,11 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "String Doesnt Match",
-			wantedTargetTags: targetTagsMatcher{
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DoMatch: map[string]interface{}{
 					"MyTag": "AValue",
 				},
-				DontMatch: map[string]interface{}{},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -90,12 +85,11 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "String that shouldn't match",
-			wantedTargetTags: targetTagsMatcher{
-				DoMatch: map[string]interface{}{},
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DontMatch: map[string]interface{}{
 					"MyTag": "MyValue",
 				},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -103,12 +97,11 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "String in list that shouldn't match",
-			wantedTargetTags: targetTagsMatcher{
-				DoMatch: map[string]interface{}{},
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DontMatch: map[string]interface{}{
 					"MyTag": []string{"Test", "MyValue"},
 				},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag": "MyValue",
 			},
@@ -116,14 +109,14 @@ func TestShouldSyncCredentials(t *testing.T) {
 		},
 		{
 			name: "Match and exclude",
-			wantedTargetTags: targetTagsMatcher{
+			creds: &Base{TargetTags: targetTagsMatcher{
 				DoMatch: map[string]interface{}{
 					"MyTag": "Value",
 				},
 				DontMatch: map[string]interface{}{
 					"MyOtherTag": []string{"Test", "MyValue"},
 				},
-			},
+			}},
 			targetTags: map[string]string{
 				"MyTag":      "Value",
 				"MyOtherTag": "MyValue",
@@ -134,8 +127,7 @@ func TestShouldSyncCredentials(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			credentials := &Base{TargetTags: tt.wantedTargetTags}
-			assert.Equal(t, tt.expected, credentials.ShouldSync(tt.targetTags))
+			assert.Equal(t, tt.expected, tt.creds.ShouldSync(tt.targetName, tt.targetTags))
 		})
 	}
 }

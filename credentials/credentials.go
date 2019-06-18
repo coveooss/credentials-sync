@@ -12,7 +12,7 @@ import (
 type Credentials interface {
 	BaseValidate() bool
 	GetID() string
-	ShouldSync(targetTags map[string]string) bool
+	ShouldSync(targetName string, targetTags map[string]string) bool
 	ToString(bool) string
 	Validate() bool
 }
@@ -26,6 +26,8 @@ type targetTagsMatcher struct {
 type Base struct {
 	ID          string
 	Description string
+	NoSync      bool              `mapstructure:"no_sync"`
+	TargetName  string            `mapstructure:"target"`
 	TargetTags  targetTagsMatcher `mapstructure:"target_tags"`
 
 	// Field set by constructor
@@ -59,7 +61,11 @@ func (credBase *Base) GetID() string {
 	return credBase.ID
 }
 
-func (credBase *Base) ShouldSync(targetTags map[string]string) bool {
+func (credBase *Base) ShouldSync(targetName string, targetTags map[string]string) bool {
+	if credBase.NoSync {
+		return false
+	}
+
 	findMatch := func(match map[string]interface{}) bool {
 		for key, value := range match {
 			for tagKey, tag := range targetTags {

@@ -78,7 +78,7 @@ func syncCredentials(target targets.Target, credentialsList []credentials.Creden
 		credChannel <- true
 		go func(cred credentials.Credentials) {
 			defer func() { <-credChannel }()
-			if !cred.ShouldSync(target.GetTags()) {
+			if !cred.ShouldSync(target.GetName(), target.GetTags()) {
 				return
 			}
 			log.Infof("[%s] Syncing %s", target.GetName(), cred.GetID())

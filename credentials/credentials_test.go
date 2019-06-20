@@ -27,6 +27,18 @@ func TestShouldSyncCredentials(t *testing.T) {
 			expected: false,
 		},
 		{
+			name:       "Non matching target name",
+			targetName: "Target",
+			creds:      &Base{TargetName: "Other target"},
+			expected:   false,
+		},
+		{
+			name:       "Matching target name",
+			targetName: "Target",
+			creds:      &Base{TargetName: "Target"},
+			expected:   true,
+		},
+		{
 			name:  "No filter",
 			creds: &Base{},
 			targetTags: map[string]string{
@@ -46,6 +58,22 @@ func TestShouldSyncCredentials(t *testing.T) {
 				"MyTag": "MyValue",
 			},
 			expected: true,
+		},
+		{
+			name: "Match but not target name",
+			creds: &Base{
+				TargetName: "Target",
+				TargetTags: targetTagsMatcher{
+					DoMatch: map[string]interface{}{
+						"MyFirstTag": "MyValue",
+						"MyTag":      "MyValue",
+					},
+				}},
+			targetName: "Other",
+			targetTags: map[string]string{
+				"MyTag": "MyValue",
+			},
+			expected: false,
 		},
 		{
 			name: "Match List Item",

@@ -65,6 +65,9 @@ func (credBase *Base) ShouldSync(targetName string, targetTags map[string]string
 	if credBase.NoSync {
 		return false
 	}
+	if credBase.TargetName != "" && credBase.TargetName != targetName {
+		return false
+	}
 
 	findMatch := func(match map[string]interface{}) bool {
 		for key, value := range match {

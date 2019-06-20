@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/aws/aws-sdk-go/aws"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bndr/gojenkins"
@@ -16,9 +17,9 @@ const credentialsDomain = "_"
 type JenkinsTarget struct {
 	Base `mapstructure:",squash"`
 
-	CredentialsID    *string `mapstructure:"credentials_id"`
-	URL              string
-	SecureConnection bool `mapstructure:"secure_connections"`
+	CredentialsID      *string `mapstructure:"credentials_id"`
+	URL                string
+	InsecureConnection bool `mapstructure:"insecure_connection"`
 
 	client              *gojenkins.Jenkins
 	credentialsManager  *gojenkins.CredentialsManager
@@ -48,14 +49,14 @@ func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credential
 			jenkins.loginCredentials = credentials
 		}
 	}
+	options := &gojenkins.JenkinsOptions{SslVerify: aws.Bool(!jenkins.InsecureConnection)}
 	if jenkins.loginCredentials != nil {
 		auth := jenkins.loginCredentials.(*credentials.UsernamePasswordCredentials)
-		jenkins.client = gojenkins.CreateJenkins(nil, jenkins.URL, auth.Username, auth.Password)
-	} else {
-		jenkins.client = gojenkins.CreateJenkins(nil, jenkins.URL)
+		options.Username = &auth.Username
+		options.Password = &auth.Password
 	}
+	jenkins.client = gojenkins.CreateJenkinsWithOptions(jenkins.URL, options)
 
-	jenkins.client.Requester.SslVerify = jenkins.SecureConnection
 	jenkins.client.Init()
 	jenkins.credentialsManager = &gojenkins.CredentialsManager{
 		J: jenkins.client,

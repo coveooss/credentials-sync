@@ -1,6 +1,9 @@
 package credentials
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -8,7 +11,8 @@ import (
 )
 
 type AWSSecretsManagerSource struct {
-	SecretID string `mapstructure:"secret_id"`
+	SecretPrefix string `mapstructure:"secret_prefix"`
+	SecretID     string `mapstructure:"secret_id"`
 }
 
 func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
@@ -17,13 +21,46 @@ func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
 		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
 	}))
 	client := secretsmanager.New(sess)
-	value, err := client.GetSecretValue(&secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(source.SecretID),
-	})
-	if err != nil {
-		return nil, err
+
+	secretIDs := []string{}
+
+	if source.SecretPrefix != "" {
+		if err := client.ListSecretsPages(&secretsmanager.ListSecretsInput{}, func(output *secretsmanager.ListSecretsOutput, lastPage bool) bool {
+			for _, secret := range output.SecretList {
+				if strings.HasPrefix(*secret.Name, source.SecretPrefix) {
+					secretIDs = append(secretIDs, *secret.ARN)
+				}
+			}
+			return !lastPage
+		}); err != nil {
+			return nil, fmt.Errorf("Error listing secrets: %v", err)
+		}
+
+		if len(secretIDs) == 0 {
+			return nil, fmt.Errorf("No secrets found with the '%s' prefix", source.SecretPrefix)
+		}
+	} else if source.SecretID != "" {
+		secretIDs = append(secretIDs, source.SecretID)
+	} else {
+		return nil, fmt.Errorf("Either `secret_id` or `secret_prefix` must be defined")
 	}
-	return getCredentialsFromBytes([]byte(*value.SecretString))
+
+	credentials := []Credentials{}
+	for _, secretID := range secretIDs {
+		value, err := client.GetSecretValue(&secretsmanager.GetSecretValueInput{
+			SecretId: aws.String(secretID),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Error while fetching secret %s: %v", secretID, err)
+		}
+		fetchedCredentials, err := getCredentialsFromBytes([]byte(*value.SecretString))
+		if err != nil {
+			return nil, fmt.Errorf("Error while parsing credentials from secret %s: %v", secretID, err)
+		}
+		credentials = append(credentials, fetchedCredentials...)
+	}
+
+	return credentials, nil
 }
 
 func (source *AWSSecretsManagerSource) Type() string {

@@ -2,6 +2,7 @@ package credentials
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 )
@@ -12,7 +13,8 @@ type AWSSecretsManagerSource struct {
 
 func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
+		SharedConfigState:       session.SharedConfigEnable,
+		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
 	}))
 	client := secretsmanager.New(sess)
 	value, err := client.GetSecretValue(&secretsmanager.GetSecretValueInput{
@@ -21,7 +23,7 @@ func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
 	if err != nil {
 		return nil, err
 	}
-	return getCredentialsFromBytes(value.SecretBinary)
+	return getCredentialsFromBytes([]byte(*value.SecretString))
 }
 
 func (source *AWSSecretsManagerSource) Type() string {

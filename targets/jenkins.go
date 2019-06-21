@@ -114,14 +114,14 @@ func toJenkinsCredential(creds credentials.Credentials) interface{} {
 		castCreds := creds.(*credentials.SecretTextCredentials)
 		return &gojenkins.StringCredentials{
 			ID:          creds.GetID(),
-			Description: castCreds.Description,
+			Description: castCreds.GetDescriptionOrID(),
 			Secret:      castCreds.Secret,
 		}
 	case *credentials.UsernamePasswordCredentials:
 		castCreds := creds.(*credentials.UsernamePasswordCredentials)
 		return &gojenkins.UsernameCredentials{
 			ID:          castCreds.GetID(),
-			Description: castCreds.Description,
+			Description: castCreds.GetDescriptionOrID(),
 			Username:    castCreds.Username,
 			Password:    castCreds.Password,
 		}

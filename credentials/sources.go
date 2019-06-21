@@ -30,6 +30,9 @@ func (sc *SourcesConfiguration) AllSources() []Source {
 	for _, source := range sc.AWSS3Sources {
 		sources = append(sources, source)
 	}
+	for _, source := range sc.AWSSecretsManagerSource {
+		sources = append(sources, source)
+	}
 	for _, source := range sc.AWSSSMSources {
 		sources = append(sources, source)
 	}

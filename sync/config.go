@@ -26,7 +26,7 @@ func (config *Configuration) Sync() {
 	// Start reading credentials
 	creds, err := config.Sources.Credentials()
 	if err != nil {
-		log.Fatalf("Caught an error while fetching credentials")
+		log.Fatalf("Caught an error while fetching credentials: %v", err)
 	}
 
 	// Initialize targets

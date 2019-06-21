@@ -47,13 +47,17 @@ func (credBase *Base) BaseValidate() bool {
 	if credBase.ID == "" {
 		log.Errorf("Credentials (%s) has no defined ID", credBase.BaseToString())
 	}
-	if credBase.Description == "" {
-		log.Errorf("Credentials (%s) has no defined description", credBase.ID)
-	}
 	if credBase.CredType == "" {
 		log.Errorf("Credentials (%s) has no type. This is probably a bug in the software", credBase.ID)
 	}
-	return credBase.ID != "" && credBase.Description != "" && credBase.CredType != ""
+	return credBase.ID != "" && credBase.CredType != ""
+}
+
+func (credBase *Base) GetDescriptionOrID() string {
+	if credBase.Description == "" {
+		return credBase.ID
+	}
+	return credBase.Description
 }
 
 // GetID returns a credentials' ID

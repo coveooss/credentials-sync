@@ -126,6 +126,8 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 	}
 
 	switch credentialsType {
+	case "aws":
+		credentials = NewAmazonWebServicesCredentials()
 	case "usernamepassword":
 		credentials = NewUsernamePassword()
 	case "secret":

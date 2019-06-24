@@ -110,6 +110,16 @@ func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
 
 func toJenkinsCredential(creds credentials.Credentials) interface{} {
 	switch creds.(type) {
+	case *credentials.AmazonWebServicesCredentials:
+		castCreds := creds.(*credentials.AmazonWebServicesCredentials)
+		return &gojenkins.AmazonWebServicesCredentials{
+			ID:                 creds.GetID(),
+			Description:        castCreds.GetDescriptionOrID(),
+			AccessKey:          castCreds.AccessKey,
+			SecretKey:          castCreds.SecretKey,
+			IAMRoleARN:         castCreds.RoleARN,
+			IAMMFASerialNumber: castCreds.MFASerialNumber,
+		}
 	case *credentials.SecretTextCredentials:
 		castCreds := creds.(*credentials.SecretTextCredentials)
 		return &gojenkins.StringCredentials{

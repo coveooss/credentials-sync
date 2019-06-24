@@ -130,6 +130,8 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 		credentials = NewUsernamePassword()
 	case "secret":
 		credentials = NewSecretText()
+	case "ssh":
+		credentials = NewSSHCredentials()
 	default:
 		return nil, errors.New("Unknown credentials type")
 	}

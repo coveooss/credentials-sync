@@ -125,6 +125,18 @@ func toJenkinsCredential(creds credentials.Credentials) interface{} {
 			Username:    castCreds.Username,
 			Password:    castCreds.Password,
 		}
+	case *credentials.SSHCredentials:
+		castCreds := creds.(*credentials.SSHCredentials)
+		return &gojenkins.SSHCredentials{
+			ID:          castCreds.GetID(),
+			Description: castCreds.GetDescriptionOrID(),
+			Username:    castCreds.Username,
+			Passphrase:  castCreds.Passphrase,
+			PrivateKeySource: &gojenkins.PrivateKey{
+				Class: gojenkins.KeySourceDirectEntryType,
+				Value: castCreds.PrivateKey,
+			},
+		}
 	}
 	return nil
 }

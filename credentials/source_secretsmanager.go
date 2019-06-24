@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
+	log "github.com/sirupsen/logrus"
 )
 
 type AWSSecretsManagerSource struct {
@@ -41,8 +42,6 @@ func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
 		}
 	} else if source.SecretID != "" {
 		secretIDs = append(secretIDs, source.SecretID)
-	} else {
-		return nil, fmt.Errorf("Either `secret_id` or `secret_prefix` must be defined")
 	}
 
 	credentials := []Credentials{}
@@ -68,5 +67,9 @@ func (source *AWSSecretsManagerSource) Type() string {
 }
 
 func (source *AWSSecretsManagerSource) ValidateConfiguration() bool {
-	return len(source.SecretID) > 0
+	if source.SecretID == "" && source.SecretPrefix == "" {
+		log.Error("Either `secret_id` or `secret_prefix` must be defined on a secretsmanager source")
+		return false
+	}
+	return true
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
+	log "github.com/sirupsen/logrus"
 )
 
 type AWSS3Source struct {
@@ -39,5 +40,13 @@ func (source *AWSS3Source) Type() string {
 }
 
 func (source *AWSS3Source) ValidateConfiguration() bool {
-	return len(source.Bucket) > 0 && len(source.Key) > 0
+	if source.Bucket == "" {
+		log.Errorf("S3 sources must define a bucket")
+		return false
+	}
+	if source.Key == "" {
+		log.Errorf("S3 sources must define a key")
+		return false
+	}
+	return true
 }

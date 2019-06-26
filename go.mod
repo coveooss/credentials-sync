@@ -1,4 +1,4 @@
-module github.com/coveo/credentials-sync
+module github.com/coveooss/credentials-sync
 
 go 1.12
 

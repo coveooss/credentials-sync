@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/coveo/credentials-sync/cli"
+	"github.com/coveooss/credentials-sync/cli"
 )
 
 var (

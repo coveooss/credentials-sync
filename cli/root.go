@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"github.com/coveo/credentials-sync/sync"
+	"github.com/coveooss/credentials-sync/sync"
 
 	"github.com/spf13/cobra"
 )

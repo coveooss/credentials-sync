@@ -9,7 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bndr/gojenkins"
-	"github.com/coveo/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/credentials"
 )
 
 const credentialsDomain = "_"

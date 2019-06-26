@@ -3,8 +3,8 @@ package sync
 import (
 	"fmt"
 
-	"github.com/coveo/credentials-sync/credentials"
-	"github.com/coveo/credentials-sync/targets"
+	"github.com/coveooss/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/targets"
 	log "github.com/sirupsen/logrus"
 )
 

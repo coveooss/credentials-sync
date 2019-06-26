@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/coveo/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/credentials"
 	log "github.com/sirupsen/logrus"
 )
 

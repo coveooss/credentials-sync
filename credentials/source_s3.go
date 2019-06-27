@@ -9,11 +9,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// AWSS3Source represents s3 objects containing credentials
 type AWSS3Source struct {
 	Bucket string
 	Key    string
 }
 
+// Credentials extracts credentials from the source
 func (source *AWSS3Source) Credentials() ([]Credentials, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
@@ -35,10 +37,12 @@ func (source *AWSS3Source) Credentials() ([]Credentials, error) {
 	return getCredentialsFromBytes(body)
 }
 
+// Type returns the type of the source
 func (source *AWSS3Source) Type() string {
 	return "Amazon S3"
 }
 
+// ValidateConfiguration verifies that the source's attributes are valid
 func (source *AWSS3Source) ValidateConfiguration() bool {
 	if source.Bucket == "" {
 		log.Errorf("S3 sources must define a bucket")

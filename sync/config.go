@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Configuration represents the parsed configuration file given to the application
 type Configuration struct {
 	Sources           *credentials.SourcesConfiguration
 	StopOnError       bool `mapstructure:"stop_on_error"`
@@ -15,6 +16,7 @@ type Configuration struct {
 	Targets           *targets.Configuration
 }
 
+// NewConfiguration creates a new configuration with default values
 func NewConfiguration() *Configuration {
 	return &Configuration{
 		StopOnError:       false,
@@ -22,6 +24,7 @@ func NewConfiguration() *Configuration {
 	}
 }
 
+// Sync syncs credentials from the configured sources to the configured targets
 func (config *Configuration) Sync() {
 	// Start reading credentials
 	creds, err := config.Sources.Credentials()

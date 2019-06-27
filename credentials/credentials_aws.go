@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// SecretTextCredentials represents credentials composed of a single string value
+// AmazonWebServicesCredentials represents an access key id and a secret access key from AWS. A role to assume can also be defined
 type AmazonWebServicesCredentials struct {
 	Base            `mapstructure:",squash"`
 	AccessKey       string `mapstructure:"access_key"`
@@ -16,15 +16,15 @@ type AmazonWebServicesCredentials struct {
 	MFASerialNumber string `mapstructure:"mfa_serial"`
 }
 
-// NewSecretText instantiates a SecretTextCredentials struct
+// NewAmazonWebServicesCredentials instantiates an AmazonWebServicesCredentials struct
 func NewAmazonWebServicesCredentials() *AmazonWebServicesCredentials {
 	cred := &AmazonWebServicesCredentials{}
 	cred.CredType = "Amazon Web Services"
 	return cred
 }
 
-// ToString prints out the content of a SecretTextCredentials struct.
-// If showSensitive is true, the secret text will be shown
+// ToString prints out the content of a AmazonWebServicesCredentials struct.
+// If showSensitive is true, the secret access key will be shown
 func (cred *AmazonWebServicesCredentials) ToString(showSensitive bool) string {
 	secretKey := "********"
 	if showSensitive {
@@ -34,7 +34,7 @@ func (cred *AmazonWebServicesCredentials) ToString(showSensitive bool) string {
 }
 
 // Validate verifies that the credentials is valid.
-// A SecretTextCredentials is always considered valid, as empty values are accepted.
+// A AmazonWebServicesCredentials must define an access key and a secret access key
 func (cred *AmazonWebServicesCredentials) Validate() bool {
 	if cred.AccessKey == "" && cred.SecretKey == "" && cred.Value != "" {
 		splitValue := strings.Split(cred.Value, ":")

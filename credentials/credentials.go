@@ -57,6 +57,7 @@ func (credBase *Base) BaseValidate() bool {
 	return credBase.ID != "" && credBase.CredType != ""
 }
 
+// GetDescriptionOrID returns the description if it set, otherwise it returns the ID
 func (credBase *Base) GetDescriptionOrID() string {
 	if credBase.Description == "" {
 		return credBase.ID
@@ -69,6 +70,8 @@ func (credBase *Base) GetID() string {
 	return credBase.ID
 }
 
+// ShouldSync returns, given a target's name and tags, if a credentials should be synced to that target
+// This is based on various credentials attributes such as the TargetTags DoMatch and DontMatch attributes
 func (credBase *Base) ShouldSync(targetName string, targetTags map[string]string) bool {
 	if credBase.NoSync {
 		return false

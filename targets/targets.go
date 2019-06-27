@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Target represents an endpoint where credentials can be synced
 type Target interface {
 	BaseValidateConfiguration() bool
 	GetName() string
@@ -19,6 +20,7 @@ type Target interface {
 	ValidateConfiguration() bool
 }
 
+// Base contains attributes which are common to all targets
 type Base struct {
 	Name string
 	Tags map[string]string
@@ -33,6 +35,7 @@ func (targetBase *Base) BaseToString() string {
 	return fmt.Sprintf("%s [Tags: %s]", targetBase.Name, strings.TrimSpace(tagString))
 }
 
+// BaseValidateConfiguration validates the target's base attributes
 func (targetBase *Base) BaseValidateConfiguration() bool {
 	if targetBase.Name == "" {
 		log.Errorf("Every target need to define a name")
@@ -41,14 +44,22 @@ func (targetBase *Base) BaseValidateConfiguration() bool {
 	return true
 }
 
+// GetName returns the target's name
+func (targetBase *Base) GetName() string {
+	return targetBase.Name
+}
+
+// GetTags returns the target's tags
 func (targetBase *Base) GetTags() map[string]string {
 	return targetBase.Tags
 }
 
+// Configuration contains all configured targets
 type Configuration struct {
 	JenkinsTargets []*JenkinsTarget `mapstructure:"jenkins"`
 }
 
+// AllTargets returns all configured targets
 func (config *Configuration) AllTargets() []Target {
 	targets := []Target{}
 	for _, target := range config.JenkinsTargets {
@@ -57,6 +68,7 @@ func (config *Configuration) AllTargets() []Target {
 	return targets
 }
 
+// ValidateConfiguration verifies that all targets are correctly configured
 func (config *Configuration) ValidateConfiguration() bool {
 	configIsOK := true
 	for _, target := range config.AllTargets() {

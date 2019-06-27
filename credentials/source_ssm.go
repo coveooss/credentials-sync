@@ -13,10 +13,12 @@ import (
 
 const ssmPathRegex = `^/(?:[A-Za-z0-9]+/?)+$`
 
+// AWSSSMSource represents AWS SSM Parameters containing credentials
 type AWSSSMSource struct {
 	Path string
 }
 
+// Credentials extracts credentials from the source
 func (source *AWSSSMSource) Credentials() ([]Credentials, error) {
 	svc := ssm.New(session.New())
 	input := &ssm.GetParametersByPathInput{
@@ -44,10 +46,12 @@ func (source *AWSSSMSource) Credentials() ([]Credentials, error) {
 	return ParseCredentials(credentialsMaps)
 }
 
+// Type returns the type of the source
 func (source *AWSSSMSource) Type() string {
 	return "Amazon SSM"
 }
 
+// ValidateConfiguration verifies that the source's attributes are valid
 func (source *AWSSSMSource) ValidateConfiguration() bool {
 	if strings.HasPrefix(source.Path, "/aws") {
 		log.Errorf("%s should not start with /aws. This path is reserved to AWS", source.Path)

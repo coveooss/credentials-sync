@@ -11,11 +11,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// AWSSecretsManagerSource represents AWS SecretsManager secrets containing credentials
 type AWSSecretsManagerSource struct {
 	SecretPrefix string `mapstructure:"secret_prefix"`
 	SecretID     string `mapstructure:"secret_id"`
 }
 
+// Credentials extracts credentials from the source
 func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState:       session.SharedConfigEnable,
@@ -62,10 +64,12 @@ func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
 	return credentials, nil
 }
 
+// Type returns the type of the source
 func (source *AWSSecretsManagerSource) Type() string {
 	return "Amazon SecretsManager"
 }
 
+// ValidateConfiguration verifies that the source's attributes are valid
 func (source *AWSSecretsManagerSource) ValidateConfiguration() bool {
 	if source.SecretID == "" && source.SecretPrefix == "" {
 		log.Error("Either `secret_id` or `secret_prefix` must be defined on a secretsmanager source")

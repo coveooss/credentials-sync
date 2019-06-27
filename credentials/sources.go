@@ -7,12 +7,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Source represents a location to fetch credentials
 type Source interface {
 	Credentials() ([]Credentials, error)
 	Type() string
 	ValidateConfiguration() bool
 }
 
+// SourcesConfiguration contains all configured sources
 type SourcesConfiguration struct {
 	AWSS3Sources            []*AWSS3Source             `mapstructure:"aws_s3"`
 	AWSSecretsManagerSource []*AWSSecretsManagerSource `mapstructure:"aws_secretsmanager"`
@@ -22,6 +24,7 @@ type SourcesConfiguration struct {
 	credentialsList []Credentials
 }
 
+// AllSources returns all configured sources in a single list
 func (sc *SourcesConfiguration) AllSources() []Source {
 	sources := []Source{}
 	for _, source := range sc.LocalSources {
@@ -39,6 +42,7 @@ func (sc *SourcesConfiguration) AllSources() []Source {
 	return sources
 }
 
+// ValidateConfiguration verifies that all configured sources are correctly configured
 func (sc *SourcesConfiguration) ValidateConfiguration() bool {
 	configIsOK := true
 	for _, source := range sc.AllSources() {
@@ -49,6 +53,7 @@ func (sc *SourcesConfiguration) ValidateConfiguration() bool {
 	return configIsOK
 }
 
+// Credentials extracts credentials from all configured sources
 func (sc *SourcesConfiguration) Credentials() ([]Credentials, error) {
 	if sc.credentialsList != nil {
 		return sc.credentialsList, nil

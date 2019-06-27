@@ -14,6 +14,7 @@ import (
 
 const credentialsDomain = "_"
 
+// JenkinsTarget represents a Jenkins instance
 type JenkinsTarget struct {
 	Base `mapstructure:",squash"`
 
@@ -27,10 +28,7 @@ type JenkinsTarget struct {
 	loginCredentials    credentials.Credentials
 }
 
-func (jenkins *JenkinsTarget) GetName() string {
-	return jenkins.Name
-}
-
+// Initialize executes all necessary operations to prepare the Jenkins target for sync
 func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credentials) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -67,6 +65,7 @@ func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credential
 	return err
 }
 
+// HasCredentials returns true if the given credentials exists on the Jenkins instance
 func (jenkins *JenkinsTarget) HasCredentials(cred credentials.Credentials) bool {
 	for _, id := range jenkins.existingCredentials {
 		if cred.GetID() == id {
@@ -76,10 +75,12 @@ func (jenkins *JenkinsTarget) HasCredentials(cred credentials.Credentials) bool 
 	return false
 }
 
+// ToString prints out a description of the Jenkins instance
 func (jenkins *JenkinsTarget) ToString() string {
 	return fmt.Sprintf("%s (Jenkins) - %s", jenkins.BaseToString(), jenkins.URL)
 }
 
+// UpdateListOfCredentials syncs the given list of credentials to the Jenkins instance
 func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []credentials.Credentials) error {
 	for _, credentials := range listOfCredentials {
 		if err := jenkins.UpdateCredentials(credentials); err != nil {
@@ -89,6 +90,7 @@ func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []creden
 	return nil
 }
 
+// UpdateCredentials syncs the given credentials to the Jenkins instance
 func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) error {
 	jenkinsCred := toJenkinsCredential(cred)
 	if jenkinsCred == nil {
@@ -100,6 +102,7 @@ func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) er
 	return jenkins.credentialsManager.Add(credentialsDomain, jenkinsCred)
 }
 
+// ValidateConfiguration verifies that Jenkins configuration is valid
 func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
 	if _, err := url.ParseRequestURI(jenkins.URL); err != nil {
 		log.Errorf("The Jenkins target `%s` has an invalid URL: %s", jenkins.Name, jenkins.URL)

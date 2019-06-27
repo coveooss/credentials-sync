@@ -52,6 +52,7 @@ func init() {
 	rootCmd.AddCommand(listTargetsCmd, syncCmd, validateCmd)
 }
 
+// Execute runs the CLI
 func Execute(commit string, date string, version string) {
 	rootCmd.Version = fmt.Sprintf("%s %s (%s)", version, commit, date)
 	if err := rootCmd.Execute(); err != nil {

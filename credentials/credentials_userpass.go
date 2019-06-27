@@ -32,7 +32,7 @@ func (cred *UsernamePasswordCredentials) ToString(showSensitive bool) string {
 	if cred.Username == "" {
 		username = "<empty>"
 	}
-	if cred.Password == "" {
+	if password == "" {
 		password = "<empty>"
 	}
 	return fmt.Sprintf("%s - %s:%s", cred.BaseToString(), username, password)

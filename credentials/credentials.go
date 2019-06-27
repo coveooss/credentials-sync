@@ -39,7 +39,11 @@ type Base struct {
 
 // BaseToString prints out the credentials fields common to all types of credentials
 func (credBase *Base) BaseToString() string {
-	return fmt.Sprintf("%s -> Type: %s, Description: %s", credBase.ID, credBase.CredType, credBase.Description)
+	value := fmt.Sprintf("%s -> Type: %s", credBase.ID, credBase.CredType)
+	if credBase.Description != "" {
+		value += ", Description: " + credBase.Description
+	}
+	return value
 }
 
 // BaseValidate verifies that the credentials fields common to all types of credentials contain valid values

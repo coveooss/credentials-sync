@@ -2,6 +2,7 @@ package credentials
 
 import (
 	"fmt"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -35,6 +36,16 @@ func (cred *AmazonWebServicesCredentials) ToString(showSensitive bool) string {
 // Validate verifies that the credentials is valid.
 // A SecretTextCredentials is always considered valid, as empty values are accepted.
 func (cred *AmazonWebServicesCredentials) Validate() bool {
+	if cred.AccessKey == "" && cred.SecretKey == "" && cred.Value != "" {
+		splitValue := strings.Split(cred.Value, ":")
+		if len(splitValue) != 2 {
+			log.Errorf("The credentials with ID %s has an invalid access_key:secret_key value: %s", cred.ID, cred.Value)
+			return false
+		}
+		cred.AccessKey = splitValue[0]
+		cred.SecretKey = splitValue[1]
+	}
+
 	if cred.AccessKey == "" {
 		log.Errorf("The credentials with ID %s does not define an access key", cred.ID)
 		return false

@@ -20,11 +20,11 @@ func NewSecretText() *SecretTextCredentials {
 // ToString prints out the content of a SecretTextCredentials struct.
 // If showSensitive is true, the secret text will be shown
 func (cred *SecretTextCredentials) ToString(showSensitive bool) string {
-	secretText := "*******"
+	secretText := "********"
 	if showSensitive {
 		secretText = cred.Secret
 	}
-	if cred.Secret == "" {
+	if secretText == "" {
 		secretText = "<empty>"
 	}
 	return fmt.Sprintf("%s - %s", cred.BaseToString(), secretText)

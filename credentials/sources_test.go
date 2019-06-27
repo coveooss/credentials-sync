@@ -1,6 +1,7 @@
 package credentials
 
 import (
+	"sort"
 	"testing"
 
 	"github.com/mitchellh/mapstructure"
@@ -111,6 +112,9 @@ func TestGetCredentialsFromBytes(t *testing.T) {
 			var gottenAsMaps []map[string]interface{}
 			mapstructure.Decode(tt.result, &expectedAsMaps)
 			mapstructure.Decode(result, &gottenAsMaps)
+			sort.Slice(gottenAsMaps, func(i int, j int) bool {
+				return gottenAsMaps[i]["ID"].(string) < gottenAsMaps[j]["ID"].(string)
+			})
 			assert.Equal(t, expectedAsMaps, gottenAsMaps)
 		})
 	}

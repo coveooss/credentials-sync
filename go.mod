@@ -3,7 +3,7 @@ module github.com/coveooss/credentials-sync
 go 1.12
 
 require (
-	github.com/aws/aws-sdk-go v1.19.11
+	github.com/aws/aws-sdk-go v1.20.10
 	github.com/bndr/gojenkins v0.0.0-00010101000000-000000000000
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/mitchellh/mapstructure v1.1.2

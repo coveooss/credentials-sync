@@ -5,6 +5,11 @@
 
 Sync credentials from various sources to various targets (Currently only Jenkins, not so various)
 
+What's the point?
+1. Easier credentials rotations
+2. Uses a push-model instead of a pull-model which means that you can put your credentials in a secure environment to which targets don't have access, targets may have varying degrees of security (prod vs dev)
+3. Decouples your credentials and the systems which use these credentials. Standardized credentials format for all targets
+
 ## Installation
 
  - Go to https://github.com/coveooss/credentials-sync/releases

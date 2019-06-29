@@ -95,7 +95,10 @@ ssh_key:
 ```
 
 ## Configuration file
-A configuration file must be given to the application. Here is the accepted format:
+A configuration file must be given to the application. Its path can either be a local path or a S3 path
+The path can either be passed as a parameter (`-c/--config`) or as an environment variable (`SYNC_CONFIG`)
+
+Here is the accepted format:
 ```yaml
 sources:
   local:
@@ -121,7 +124,7 @@ targets:
 Since credentials are also used for authentication, you may wish to not sync them:
 ```yaml
 toolsjenkins:
-  description: Loging credentials for jenkins
+  description: Login credentials for jenkins
   type: usernamepassword
   username: jdoe
   password: apikey

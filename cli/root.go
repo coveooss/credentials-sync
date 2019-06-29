@@ -3,8 +3,13 @@ package cli
 import (
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/mitchellh/mapstructure"
 
 	"gopkg.in/yaml.v2"
@@ -13,13 +18,10 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-var (
-	configurationFile string
-	configuration     *sync.Configuration
-	verbose           bool
-)
+var configuration *sync.Configuration
 
 var rootCmd = &cobra.Command{
 	Use:   "credentials-sync",
@@ -35,9 +37,40 @@ var rootCmd = &cobra.Command{
 			err         error
 			fileContent []byte
 		)
-		if fileContent, err = ioutil.ReadFile(configurationFile); err != nil {
-			return err
+
+		configurationFile := viper.GetString("config")
+
+		if configurationFile == "" {
+			return fmt.Errorf("A configuration file must be defined")
 		}
+
+		if strings.HasPrefix(configurationFile, "s3://") {
+			sess := session.Must(session.NewSessionWithOptions(session.Options{
+				SharedConfigState: session.SharedConfigEnable,
+			}))
+			s3Client := s3.New(sess)
+			splitS3Path, err := url.Parse(configurationFile)
+			if err != nil {
+				return fmt.Errorf("Failed to parse the given S3 config path: %v", err)
+			}
+
+			resp, err := s3Client.GetObject(&s3.GetObjectInput{
+				Bucket: aws.String(splitS3Path.Host),
+				Key:    aws.String(splitS3Path.Path),
+			})
+			if err != nil {
+				return fmt.Errorf("Failed to download the config file from S3, %v", err)
+			}
+
+			if fileContent, err = ioutil.ReadAll(resp.Body); err != nil {
+				return fmt.Errorf("Failed to read the config file from S3, %v", err)
+			}
+		} else {
+			if fileContent, err = ioutil.ReadFile(configurationFile); err != nil {
+				return err
+			}
+		}
+
 		if err = yaml.Unmarshal(fileContent, configurationDict); err != nil {
 			return err
 		}
@@ -47,9 +80,15 @@ var rootCmd = &cobra.Command{
 
 func init() {
 	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
-	rootCmd.PersistentFlags().StringVarP(&configurationFile, "config", "c", "", "configuration file")
-	rootCmd.MarkPersistentFlagRequired("config")
-	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")
+
+	viper.AutomaticEnv()
+	viper.SetEnvPrefix("sync")
+	rootCmd.PersistentFlags().StringP("config", "c", "", "configuration file")
+	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
+
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
+	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+
 	initListCredentials()
 	rootCmd.AddCommand(listTargetsCmd, syncCmd, validateCmd)
 }

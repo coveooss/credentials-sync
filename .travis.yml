@@ -11,3 +11,6 @@ install:
 script:
   - bash ./test.sh
   - bash <(curl -s https://codecov.io/bash)
+  - if [ "${TRAVIS_TAG::1}" = "v" ]; then
+      curl -sL https://git.io/goreleaser | bash;
+    fi

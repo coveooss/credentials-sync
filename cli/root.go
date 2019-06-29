@@ -10,6 +10,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/coveooss/credentials-sync/sync"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -45,6 +46,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
+	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
 	rootCmd.PersistentFlags().StringVarP(&configurationFile, "config", "c", "", "configuration file")
 	rootCmd.MarkPersistentFlagRequired("config")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose output")

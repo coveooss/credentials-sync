@@ -164,8 +164,14 @@ secret_text:
       my_other_tag: ["value1", "value2"] # OR if my_other_tag == "value1" OR my_other_tag == "value2"
     dont_match:
       my_tag: ["other_value", "some_value"] # Will not sync to targets if my_tag == "other_value" or if my_tag == "some_value", regardless of `do_match`
-
 ```
+
+## Using the docker image
+
+For every version, a docker image is published here: https://hub.docker.com/r/coveo/credentials-sync
+The only parameter needed for the credentials sync is the configuration file (You can set its location with `SYNC_CONFIG` env variable)
+This allows you to run this as a cron job in AWS Fargate or Kubernetes for example
+
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

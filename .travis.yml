@@ -11,6 +11,26 @@ install:
 script:
   - bash ./test.sh
   - bash <(curl -s https://codecov.io/bash)
+
+after_success:
+  # Login to dockerhub
+  - if [ "${TRAVIS_TAG::1}" = "v" ] || [ ${TRAVIS_BRANCH} == "master" ];
+    then
+      docker login -u="${DOCKER_USERNAME}" -p="${DOCKER_PASSWORD}";
+    fi
+  # Push version images (on tag)
+  - if [ "${TRAVIS_TAG::1}" = "v" ];
+    then
+      docker build . -t coveo/credentials-sync:${TRAVIS_TAG};
+      docker push coveo/credentials-sync:${TRAVIS_TAG};
+    fi
+  # Push latest version (on master)
+  - if [ ${TRAVIS_BRANCH} == "master" ];
+    then
+      docker build . -t coveo/credentials-sync:latest;
+      docker push coveo/credentials-sync:latest;
+    fi
+  # Release version to Github (on tag)
   - if [ "${TRAVIS_TAG::1}" = "v" ]; then
       curl -sL https://git.io/goreleaser | bash;
     fi

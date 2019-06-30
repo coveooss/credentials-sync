@@ -3,10 +3,10 @@
 [![codecov](https://codecov.io/gh/coveooss/credentials-sync/branch/master/graph/badge.svg)](https://codecov.io/gh/coveooss/credentials-sync)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coveooss/credentials-sync)](https://goreportcard.com/report/github.com/coveooss/credentials-sync)
 
-Sync credentials from various sources to various targets (Currently only Jenkins, not so various)
+Sync credentials from various sources to various targets. It currently only supports Jenkins, but LastPass is planned because that is what we use. However, we are open to supporting more targets.
 
 What's the point?
-1. Easier credentials rotations
+1. Easier credentials rotations. Rotating credentials manually is simply not an option when credentials rotations are done too often
 2. Uses a push-model instead of a pull-model which means that you can put your credentials in a secure environment to which targets don't have access, targets may have varying degrees of security (prod vs dev)
 3. Decouples your credentials and the systems which use these credentials. Standardized credentials format for all targets
 
@@ -26,6 +26,32 @@ credentials-sync sync -c config.yml
 ```
 
 ![example](https://raw.githubusercontent.com/coveooss/credentials-sync/master/example.png)
+
+## Configuration file
+A configuration file must be given to the application. Its path can either be a local path or a S3 path
+The path can either be passed as a parameter (`-c/--config`) or as an environment variable (`SYNC_CONFIG`)  
+
+A configuration file contains [sources](#supported-sources) which contain [credentials](#supported-types-of-credentials). It also defines targets to which these credentials will be synced
+
+Here is the accepted format:
+```yaml
+sources:
+  local:
+    - path: /home/jdoe/path/to/file.yaml
+  aws_s3:
+    - bucket: name
+    - key: path/to/file.yaml
+  aws_secretsmanager:
+    - secret_prefix: credentials-sync/
+    - secret_id: arn:aws:secretsmanager:us-west-2:123456789012:secret:production/MyAwesomeAppSecret-a1b2c3
+stop_on_error: true   # If true, will completely stop the process if an operation fails. Otherwise, continues anyways
+target_parallelism: 3 # Number of target on which to sync creds at the same time
+targets:
+  jenkins:
+    - name: toolsjenkins
+      url: https://toolsjenkins.my-domain.com
+      credentials_id: toolsjenkins # Uses a set of username:password credentials
+```
 
 ## Supported sources
 Here are the supported sources:
@@ -94,30 +120,6 @@ ssh_key:
     -----END RSA PRIVATE KEY-----
 ```
 
-## Configuration file
-A configuration file must be given to the application. Its path can either be a local path or a S3 path
-The path can either be passed as a parameter (`-c/--config`) or as an environment variable (`SYNC_CONFIG`)
-
-Here is the accepted format:
-```yaml
-sources:
-  local:
-    - path: /home/jdoe/path/to/file.yaml
-  aws_s3:
-    - bucket: name
-    - key: path/to/file.yaml
-  aws_secretsmanager:
-    - secret_prefix: credentials-sync/
-    - secret_id: arn:aws:secretsmanager:us-west-2:123456789012:secret:production/MyAwesomeAppSecret-a1b2c3
-stop_on_error: true   # If true, will completely stop the process if an operation fails. Otherwise, continues anyways
-target_parallelism: 3 # Number of target on which to sync creds at the same time
-targets:
-  jenkins:
-    - name: toolsjenkins
-      url: https://toolsjenkins.my-domain.com
-      credentials_id: toolsjenkins # Uses a set of username:password credentials
-```
-
 ## Other features
 
 ### Unsynced credentials
@@ -168,8 +170,8 @@ secret_text:
 
 ## Using the docker image
 
-For every version, a docker image is published here: https://hub.docker.com/r/coveo/credentials-sync
-The only parameter needed for the credentials sync is the configuration file (You can set its location with `SYNC_CONFIG` env variable)
+For every version, a docker image is published here: https://hub.docker.com/r/coveo/credentials-sync  
+The only parameter needed for the credentials sync is the configuration file (You can set its location with `SYNC_CONFIG` env variable)  
 This allows you to run this as a cron job in AWS Fargate or Kubernetes, for example
 
 ## Roadmap

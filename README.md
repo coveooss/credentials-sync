@@ -170,8 +170,14 @@ secret_text:
 
 For every version, a docker image is published here: https://hub.docker.com/r/coveo/credentials-sync
 The only parameter needed for the credentials sync is the configuration file (You can set its location with `SYNC_CONFIG` env variable)
-This allows you to run this as a cron job in AWS Fargate or Kubernetes for example
+This allows you to run this as a cron job in AWS Fargate or Kubernetes, for example
 
+## Roadmap
+- Incremental runs (keep a state file and only update credentials that have been modified at the source level. This would have to be optional because full runs will still be need to sync back credentials that have been modified at the target level)
+- Credentials deletion (from a list of IDs)
+- LastPass target
+- Terraform state file source
+- SSM Parameter store source (not in the regular JSON format)
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

@@ -65,29 +65,17 @@ func (jenkins *JenkinsTarget) Initialize(allCredentials []credentials.Credential
 	return err
 }
 
-// HasCredentials returns true if the given credentials exists on the Jenkins instance
-func (jenkins *JenkinsTarget) HasCredentials(cred credentials.Credentials) bool {
-	for _, id := range jenkins.existingCredentials {
-		if cred.GetID() == id {
-			return true
-		}
-	}
-	return false
-}
-
 // ToString prints out a description of the Jenkins instance
 func (jenkins *JenkinsTarget) ToString() string {
 	return fmt.Sprintf("%s (Jenkins) - %s", jenkins.BaseToString(), jenkins.URL)
 }
 
-// UpdateListOfCredentials syncs the given list of credentials to the Jenkins instance
-func (jenkins *JenkinsTarget) UpdateListOfCredentials(listOfCredentials []credentials.Credentials) error {
-	for _, credentials := range listOfCredentials {
-		if err := jenkins.UpdateCredentials(credentials); err != nil {
-			return err
-		}
-	}
-	return nil
+func (jenkins *JenkinsTarget) GetExistingCredentials() []string {
+	return jenkins.existingCredentials
+}
+
+func (jenkins *JenkinsTarget) DeleteCredentials(id string) error {
+	return jenkins.credentialsManager.Delete(credentialsDomain, id)
 }
 
 // UpdateCredentials syncs the given credentials to the Jenkins instance
@@ -96,7 +84,7 @@ func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) er
 	if jenkinsCred == nil {
 		return fmt.Errorf("Unable to create jenkins credentials from %s", cred.GetID())
 	}
-	if jenkins.HasCredentials(cred) {
+	if jenkins.hasCredentials(cred) {
 		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetID(), jenkinsCred)
 	}
 	return jenkins.credentialsManager.Add(credentialsDomain, jenkinsCred)
@@ -109,6 +97,15 @@ func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
 		return false
 	}
 	return true
+}
+
+func (jenkins *JenkinsTarget) hasCredentials(cred credentials.Credentials) bool {
+	for _, id := range jenkins.existingCredentials {
+		if cred.GetID() == id {
+			return true
+		}
+	}
+	return false
 }
 
 func toJenkinsCredential(creds credentials.Credentials) interface{} {

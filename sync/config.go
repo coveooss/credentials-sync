@@ -10,10 +10,11 @@ import (
 
 // Configuration represents the parsed configuration file given to the application
 type Configuration struct {
-	Sources           *credentials.SourcesConfiguration
-	StopOnError       bool `mapstructure:"stop_on_error"`
-	TargetParallelism int  `mapstructure:"target_parallelism"`
-	Targets           *targets.Configuration
+	CredentialsToDelete []string                          `mapstructure:"credentials_to_delete"`
+	Sources             *credentials.SourcesConfiguration `mapstructure:"sources"`
+	StopOnError         bool                              `mapstructure:"stop_on_error"`
+	TargetParallelism   int                               `mapstructure:"target_parallelism"`
+	Targets             *targets.Configuration            `mapstructure:"targets"`
 }
 
 // NewConfiguration creates a new configuration with default values
@@ -76,26 +77,19 @@ func initTarget(target targets.Target, creds []credentials.Credentials, channel 
 func syncCredentials(target targets.Target, credentialsList []credentials.Credentials, channel chan bool, panicOnError bool) {
 	defer func() { <-channel }()
 
-	credChannel := make(chan bool, 1)
+	filteredCredentials := []credentials.Credentials{}
 	for _, cred := range credentialsList {
-		credChannel <- true
-		go func(cred credentials.Credentials) {
-			defer func() { <-credChannel }()
-			if !cred.ShouldSync(target.GetName(), target.GetTags()) {
-				return
-			}
-			log.Infof("[%s] Syncing %s", target.GetName(), cred.GetID())
-			if err := target.UpdateCredentials(cred); err != nil {
-				message := fmt.Sprintf("Failed to send credential %s to %s: %v", cred.GetID(), target.GetName(), err)
-				if panicOnError {
-					log.Fatal(message)
-				}
-				log.Error(message)
-			}
-		}(cred)
+		if cred.ShouldSync(target.GetName(), target.GetTags()) {
+			filteredCredentials = append(filteredCredentials, cred)
+		}
 	}
-	for i := 0; i < cap(credChannel); i++ {
-		credChannel <- true
+
+	if err := targets.UpdateListOfCredentials(target, filteredCredentials); err != nil {
+		message := fmt.Sprintf("Failed to send credentials to %s: %v", target.GetName(), err)
+		if panicOnError {
+			log.Fatal(message)
+		}
+		log.Error(message)
 	}
 
 	log.Infof("Finished sync to %s", target.GetName())

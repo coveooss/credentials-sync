@@ -1,8 +1,6 @@
 package sync
 
 import (
-	"fmt"
-
 	"github.com/coveooss/credentials-sync/credentials"
 	"github.com/coveooss/credentials-sync/targets"
 	log "github.com/sirupsen/logrus"
@@ -38,7 +36,7 @@ func (config *Configuration) Sync() {
 	allTargets := config.Targets.AllTargets()
 	initChannel := make(chan targets.Target)
 	for _, target := range allTargets {
-		go initTarget(target, creds, initChannel, config.StopOnError)
+		go config.initTarget(target, creds, initChannel)
 	}
 	for i := 0; i < len(allTargets); i++ {
 		initTarget := <-initChannel
@@ -50,7 +48,7 @@ func (config *Configuration) Sync() {
 	syncChannel := make(chan bool, config.TargetParallelism)
 	for _, target := range validTargets {
 		syncChannel <- true
-		go syncCredentials(target, creds, syncChannel, config.StopOnError)
+		go config.syncCredentials(target, creds, syncChannel)
 	}
 
 	for i := 0; i < cap(syncChannel); i++ {
@@ -59,22 +57,25 @@ func (config *Configuration) Sync() {
 
 }
 
-func initTarget(target targets.Target, creds []credentials.Credentials, channel chan targets.Target, panicOnError bool) {
+func (config *Configuration) logError(format string, args ...interface{}) {
+	if config.StopOnError {
+		log.Fatalf(format, args...)
+	}
+	log.Errorf(format, args...)
+}
+
+func (config *Configuration) initTarget(target targets.Target, creds []credentials.Credentials, channel chan targets.Target) {
 	err := target.Initialize(creds)
 	if err == nil {
 		log.Infof("Connected to %s", target.ToString())
 		channel <- target
 	} else {
-		message := fmt.Sprintf("Target `%s` has failed initialization: %v", target.GetName(), err)
-		if panicOnError {
-			log.Fatal(message)
-		}
-		log.Warning(message)
+		config.logError("Target `%s` has failed initialization: %v", target.GetName(), err)
 		channel <- nil
 	}
 }
 
-func syncCredentials(target targets.Target, credentialsList []credentials.Credentials, channel chan bool, panicOnError bool) {
+func (config *Configuration) syncCredentials(target targets.Target, credentialsList []credentials.Credentials, channel chan bool) {
 	defer func() { <-channel }()
 
 	filteredCredentials := []credentials.Credentials{}
@@ -84,13 +85,8 @@ func syncCredentials(target targets.Target, credentialsList []credentials.Creden
 		}
 	}
 
-	if err := targets.UpdateListOfCredentials(target, filteredCredentials); err != nil {
-		message := fmt.Sprintf("Failed to send credentials to %s: %v", target.GetName(), err)
-		if panicOnError {
-			log.Fatal(message)
-		}
-		log.Error(message)
-	}
+	config.UpdateListOfCredentials(target, filteredCredentials)
+	config.DeleteListOfCredentials(target)
 
 	log.Infof("Finished sync to %s", target.GetName())
 }

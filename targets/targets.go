@@ -26,38 +26,6 @@ type Target interface {
 	ValidateConfiguration() bool
 }
 
-// UpdateListOfCredentials syncs the given list of credentials to the given target
-func UpdateListOfCredentials(target Target, listOfCredentials []credentials.Credentials) error {
-	isSynced := func(id string) bool {
-		for _, credentials := range listOfCredentials {
-			if credentials.GetID() == id {
-				return true
-			}
-		}
-		return false
-	}
-
-	for _, credentials := range listOfCredentials {
-		log.Infof("[%s] Syncing %s", target.GetName(), credentials.GetID())
-		if err := target.UpdateCredentials(credentials); err != nil {
-			return err
-		}
-	}
-
-	if target.ShouldDeleteUnsynced() {
-		log.Debugf("Deleting unsynced credentials from %v", target.GetName())
-		for _, existingID := range target.GetExistingCredentials() {
-			if !isSynced(existingID) {
-				log.Infof("[%s] Deleting %s", target.GetName(), existingID)
-				if err := target.DeleteCredentials(existingID); err != nil {
-					return err
-				}
-			}
-		}
-	}
-	return nil
-}
-
 // Base contains attributes which are common to all targets
 type Base struct {
 	DeleteUnsynced bool              `mapstructure:"delete_unsynced"`
@@ -98,12 +66,24 @@ func (targetBase *Base) GetTags() map[string]string {
 	return targetBase.Tags
 }
 
+// ShouldDeleteUnsynced returns true if the unsynced credentials should be deleted from the target
 func (targetBase *Base) ShouldDeleteUnsynced() bool {
 	return targetBase.DeleteUnsynced
 }
 
+// ShouldTagUnsynced returns true if the unsynced credentials should be tagged accordingly on the target
 func (targetBase *Base) ShouldTagUnsynced() bool {
 	return targetBase.TagUnsynced
+}
+
+// HasCredential returns true if the given ID is found on the target
+func HasCredential(target Target, id string) bool {
+	for _, existingId := range target.GetExistingCredentials() {
+		if existingId == id {
+			return true
+		}
+	}
+	return false
 }
 
 // Configuration contains all configured targets

@@ -70,10 +70,12 @@ func (jenkins *JenkinsTarget) ToString() string {
 	return fmt.Sprintf("%s (Jenkins) - %s", jenkins.BaseToString(), jenkins.URL)
 }
 
+// GetExistingCredentials returns a list of all credential IDs on the target
 func (jenkins *JenkinsTarget) GetExistingCredentials() []string {
 	return jenkins.existingCredentials
 }
 
+// DeleteCredentials deletes the credentials with the given ID on the target
 func (jenkins *JenkinsTarget) DeleteCredentials(id string) error {
 	return jenkins.credentialsManager.Delete(credentialsDomain, id)
 }

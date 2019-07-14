@@ -78,8 +78,8 @@ func (targetBase *Base) ShouldTagUnsynced() bool {
 
 // HasCredential returns true if the given ID is found on the target
 func HasCredential(target Target, id string) bool {
-	for _, existingId := range target.GetExistingCredentials() {
-		if existingId == id {
+	for _, existingID := range target.GetExistingCredentials() {
+		if existingID == id {
 			return true
 		}
 	}

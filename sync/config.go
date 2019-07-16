@@ -8,11 +8,11 @@ import (
 
 // Configuration represents the parsed configuration file given to the application
 type Configuration struct {
-	CredentialsToDelete []string                          `mapstructure:"credentials_to_delete"`
-	Sources             *credentials.SourcesConfiguration `mapstructure:"sources"`
-	StopOnError         bool                              `mapstructure:"stop_on_error"`
-	TargetParallelism   int                               `mapstructure:"target_parallelism"`
-	Targets             *targets.Configuration            `mapstructure:"targets"`
+	CredentialsToDelete []string                     `mapstructure:"credentials_to_delete"`
+	Sources             credentials.SourceCollection `mapstructure:"-"`
+	StopOnError         bool                         `mapstructure:"stop_on_error"`
+	TargetParallelism   int                          `mapstructure:"target_parallelism"`
+	Targets             targets.TargetCollection     `mapstructure:"-"`
 }
 
 // NewConfiguration creates a new configuration with default values
@@ -21,6 +21,14 @@ func NewConfiguration() *Configuration {
 		StopOnError:       false,
 		TargetParallelism: 4,
 	}
+}
+
+func (config *Configuration) SetSources(sources credentials.SourceCollection) {
+	config.Sources = sources
+}
+
+func (config *Configuration) SetTargets(targets targets.TargetCollection) {
+	config.Targets = targets
 }
 
 // Sync syncs credentials from the configured sources to the configured targets

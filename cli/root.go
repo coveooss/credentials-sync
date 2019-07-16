@@ -14,6 +14,8 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/coveooss/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/targets"
 	"github.com/coveooss/credentials-sync/sync"
 	log "github.com/sirupsen/logrus"
 
@@ -32,13 +34,14 @@ var rootCmd = &cobra.Command{
 	Support Jenkins only for now.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		configuration = sync.NewConfiguration()
-		configurationDict := map[string]interface{}{}
+		sourcesConfiguration := &credentials.SourcesConfiguration{}
+		targetsConfiguration := &targets.Configuration{}
 		var (
-			err         error
-			fileContent []byte
+			configurationDict = map[string]interface{}{}
+			configurationFile = viper.GetString("config")
+			err               error
+			fileContent       []byte
 		)
-
-		configurationFile := viper.GetString("config")
 
 		if configurationFile == "" {
 			return fmt.Errorf("A configuration file must be defined")
@@ -74,7 +77,25 @@ var rootCmd = &cobra.Command{
 		if err = yaml.Unmarshal(fileContent, configurationDict); err != nil {
 			return err
 		}
-		return mapstructure.Decode(configurationDict, configuration)
+
+		// Get the config
+		if err = mapstructure.Decode(configurationDict, configuration); err != nil {
+			return err
+		}
+
+		// Get sources from config
+		if err = mapstructure.Decode(configurationDict["sources"], sourcesConfiguration); err != nil {
+			return err
+		}
+		configuration.SetSources(sourcesConfiguration)
+
+		// Get targets from config
+		if err = mapstructure.Decode(configurationDict["targets"], targetsConfiguration); err != nil {
+			return err
+		}
+		configuration.SetTargets(targetsConfiguration)
+
+		return nil
 	},
 }
 

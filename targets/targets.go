@@ -86,6 +86,11 @@ func HasCredential(target Target, id string) bool {
 	return false
 }
 
+type TargetCollection interface {
+	AllTargets() []Target
+	ValidateConfiguration() bool
+}
+
 // Configuration contains all configured targets
 type Configuration struct {
 	JenkinsTargets []*JenkinsTarget `mapstructure:"jenkins"`

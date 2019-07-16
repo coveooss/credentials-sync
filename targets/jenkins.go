@@ -86,7 +86,7 @@ func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) er
 	if jenkinsCred == nil {
 		return fmt.Errorf("Unable to create jenkins credentials from %s", cred.GetID())
 	}
-	if jenkins.hasCredentials(cred) {
+	if HasCredential(jenkins, cred.GetID()) {
 		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetID(), jenkinsCred)
 	}
 	return jenkins.credentialsManager.Add(credentialsDomain, jenkinsCred)
@@ -99,15 +99,6 @@ func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
 		return false
 	}
 	return true
-}
-
-func (jenkins *JenkinsTarget) hasCredentials(cred credentials.Credentials) bool {
-	for _, id := range jenkins.existingCredentials {
-		if cred.GetID() == id {
-			return true
-		}
-	}
-	return false
 }
 
 func toJenkinsCredential(creds credentials.Credentials) interface{} {

@@ -186,3 +186,54 @@ func (mr *MockTargetMockRecorder) ValidateConfiguration() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateConfiguration", reflect.TypeOf((*MockTarget)(nil).ValidateConfiguration))
 }
+
+// MockTargetCollection is a mock of TargetCollection interface
+type MockTargetCollection struct {
+	ctrl     *gomock.Controller
+	recorder *MockTargetCollectionMockRecorder
+}
+
+// MockTargetCollectionMockRecorder is the mock recorder for MockTargetCollection
+type MockTargetCollectionMockRecorder struct {
+	mock *MockTargetCollection
+}
+
+// NewMockTargetCollection creates a new mock instance
+func NewMockTargetCollection(ctrl *gomock.Controller) *MockTargetCollection {
+	mock := &MockTargetCollection{ctrl: ctrl}
+	mock.recorder = &MockTargetCollectionMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use
+func (m *MockTargetCollection) EXPECT() *MockTargetCollectionMockRecorder {
+	return m.recorder
+}
+
+// AllTargets mocks base method
+func (m *MockTargetCollection) AllTargets() []Target {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AllTargets")
+	ret0, _ := ret[0].([]Target)
+	return ret0
+}
+
+// AllTargets indicates an expected call of AllTargets
+func (mr *MockTargetCollectionMockRecorder) AllTargets() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AllTargets", reflect.TypeOf((*MockTargetCollection)(nil).AllTargets))
+}
+
+// ValidateConfiguration mocks base method
+func (m *MockTargetCollection) ValidateConfiguration() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ValidateConfiguration")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// ValidateConfiguration indicates an expected call of ValidateConfiguration
+func (mr *MockTargetCollectionMockRecorder) ValidateConfiguration() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ValidateConfiguration", reflect.TypeOf((*MockTargetCollection)(nil).ValidateConfiguration))
+}

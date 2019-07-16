@@ -23,6 +23,12 @@ type SourcesConfiguration struct {
 	credentialsList []Credentials
 }
 
+type SourceCollection interface {
+	AllSources() []Source
+	Credentials() ([]Credentials, error)
+	ValidateConfiguration() bool
+}
+
 // AllSources returns all configured sources in a single list
 func (sc *SourcesConfiguration) AllSources() []Source {
 	sources := []Source{}

@@ -1,6 +1,9 @@
 package credentials
 
 import (
+	"io/ioutil"
+	"os"
+	"path"
 	"sort"
 	"testing"
 
@@ -25,6 +28,25 @@ var testCredentials = []Credentials{
 		creds.Description = "test2-desc"
 		return
 	}(),
+}
+
+func TestSourcesConfigWithLocalSource(t *testing.T) {
+	tempDir, err := ioutil.TempDir("", "")
+	if err != nil {
+		panic(err)
+	}
+	defer os.RemoveAll(tempDir)
+	filePath := path.Join(tempDir, "local_file.json")
+	ioutil.WriteFile(filePath, []byte(`[{"id": "test", "type": "secret", "description": "test-desc", "secret": "my secret"}]`), 0777)
+	localSource := &LocalSource{
+		File: filePath,
+	}
+
+	sourcesConfig := SourcesConfiguration{LocalSources: []*LocalSource{localSource}}
+
+	credentials, err := sourcesConfig.Credentials()
+	assert.Nil(t, err)
+	assert.Equal(t, []Credentials{testCredentials[0]}, credentials)
 }
 
 func TestGetCredentialsFromBytes(t *testing.T) {

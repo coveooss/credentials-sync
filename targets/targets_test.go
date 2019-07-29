@@ -22,7 +22,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 		{
 			name: "valid target",
 			targets: []*JenkinsTarget{
-				&JenkinsTarget{
+				{
 					Base: Base{Name: "test"},
 					URL:  "https://test.com",
 				},
@@ -32,7 +32,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 		{
 			name: "no name",
 			targets: []*JenkinsTarget{
-				&JenkinsTarget{
+				{
 					Base: Base{Name: ""},
 					URL:  "https://test.com",
 				},
@@ -42,7 +42,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 		{
 			name: "two actions for unsynced credentials",
 			targets: []*JenkinsTarget{
-				&JenkinsTarget{
+				{
 					Base: Base{Name: "test", DeleteUnsynced: true, TagUnsynced: true},
 					URL:  "https://test.com",
 				},
@@ -52,7 +52,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 		{
 			name: "bad url (validated by Jenkins)",
 			targets: []*JenkinsTarget{
-				&JenkinsTarget{
+				{
 					Base: Base{Name: "test"},
 					URL:  "bad",
 				},

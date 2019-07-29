@@ -25,6 +25,7 @@ type SourcesConfiguration struct {
 	credentialsList []Credentials
 }
 
+// SourceCollection represents a collection of sources from which credentials can be fetched
 type SourceCollection interface {
 	AllSources() []Source
 	Credentials() ([]Credentials, error)

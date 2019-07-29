@@ -23,10 +23,12 @@ func NewConfiguration() *Configuration {
 	}
 }
 
+// SetSources sets the source configuration on synchronization configuration
 func (config *Configuration) SetSources(sources credentials.SourceCollection) {
 	config.Sources = sources
 }
 
+// SetTargets sets the target configuration on synchronization configuration
 func (config *Configuration) SetTargets(targets targets.TargetCollection) {
 	config.Targets = targets
 }

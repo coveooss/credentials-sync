@@ -84,6 +84,7 @@ func HasCredential(target Target, id string) bool {
 	return false
 }
 
+// TargetCollection represents a collection of targets to which credentials can be synced
 type TargetCollection interface {
 	AllTargets() []Target
 	ValidateConfiguration() error

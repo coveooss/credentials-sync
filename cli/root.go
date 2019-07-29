@@ -15,8 +15,8 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/coveooss/credentials-sync/credentials"
-	"github.com/coveooss/credentials-sync/targets"
 	"github.com/coveooss/credentials-sync/sync"
+	"github.com/coveooss/credentials-sync/targets"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"

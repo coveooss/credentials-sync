@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	"github.com/aws/aws-sdk-go/aws"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/bndr/gojenkins"
 	"github.com/coveooss/credentials-sync/credentials"
@@ -93,12 +92,11 @@ func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) er
 }
 
 // ValidateConfiguration verifies that Jenkins configuration is valid
-func (jenkins *JenkinsTarget) ValidateConfiguration() bool {
+func (jenkins *JenkinsTarget) ValidateConfiguration() error {
 	if _, err := url.ParseRequestURI(jenkins.URL); err != nil {
-		log.Errorf("The Jenkins target `%s` has an invalid URL: %s", jenkins.Name, jenkins.URL)
-		return false
+		return fmt.Errorf("The Jenkins target `%s` has an invalid URL: %s", jenkins.Name, jenkins.URL)
 	}
-	return true
+	return nil
 }
 
 func toJenkinsCredential(creds credentials.Credentials) interface{} {

@@ -15,8 +15,8 @@ var listCredentialsCmd = &cobra.Command{
 	Use:   "list-credentials",
 	Short: "Resolves and lists all configured credentials",
 	Run: func(cmd *cobra.Command, args []string) {
-		if !configuration.Sources.ValidateConfiguration() {
-			log.Fatal("The sources section of the config file is invalid")
+		if err := configuration.Sources.ValidateConfiguration(); err != nil {
+			log.Fatalf("The sources section of the config file is invalid: %v", err)
 		}
 		allCredentials, err := configuration.Sources.Credentials()
 		if err != nil {

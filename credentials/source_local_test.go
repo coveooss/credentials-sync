@@ -21,7 +21,7 @@ func TestGetCredentialsFromLocalSource(t *testing.T) {
 		File: filePath,
 	}
 	assert.Equal(t, "Local file", localSource.Type())
-	assert.False(t, localSource.ValidateConfiguration())
+	assert.Error(t, localSource.ValidateConfiguration())
 
 	ioutil.WriteFile(filePath, []byte(`test_cred:
   type: usernamepassword
@@ -29,7 +29,7 @@ func TestGetCredentialsFromLocalSource(t *testing.T) {
   username: user
   password: pass`), 0777)
 
-	assert.True(t, localSource.ValidateConfiguration())
+	assert.Nil(t, localSource.ValidateConfiguration())
 	credentials, err := localSource.Credentials()
 	expectedCred := NewUsernamePassword()
 	expectedCred.ID = "test_cred"

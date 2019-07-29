@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/hashicorp/go-multierror"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
@@ -12,7 +13,7 @@ import (
 type Source interface {
 	Credentials() ([]Credentials, error)
 	Type() string
-	ValidateConfiguration() bool
+	ValidateConfiguration() error
 }
 
 // SourcesConfiguration contains all configured sources
@@ -27,7 +28,7 @@ type SourcesConfiguration struct {
 type SourceCollection interface {
 	AllSources() []Source
 	Credentials() ([]Credentials, error)
-	ValidateConfiguration() bool
+	ValidateConfiguration() error
 }
 
 // AllSources returns all configured sources in a single list
@@ -46,14 +47,14 @@ func (sc *SourcesConfiguration) AllSources() []Source {
 }
 
 // ValidateConfiguration verifies that all configured sources are correctly configured
-func (sc *SourcesConfiguration) ValidateConfiguration() bool {
-	configIsOK := true
+func (sc *SourcesConfiguration) ValidateConfiguration() error {
+	var validationErrors error
 	for _, source := range sc.AllSources() {
-		if !source.ValidateConfiguration() {
-			configIsOK = false
+		if err := source.ValidateConfiguration(); err != nil {
+			validationErrors = multierror.Append(validationErrors, err)
 		}
 	}
-	return configIsOK
+	return validationErrors
 }
 
 // Credentials extracts credentials from all configured sources

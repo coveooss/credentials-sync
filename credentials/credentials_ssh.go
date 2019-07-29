@@ -2,8 +2,6 @@ package credentials
 
 import (
 	"fmt"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // SSHCredentials represents credentials composed of a private key, username and passphrase
@@ -40,10 +38,9 @@ func (cred *SSHCredentials) ToString(showSensitive bool) string {
 
 // Validate verifies that the credentials is valid.
 // A SSHCredentials must have a private key, the username and passphrase are optional
-func (cred *SSHCredentials) Validate() bool {
+func (cred *SSHCredentials) Validate() error {
 	if cred.PrivateKey == "" {
-		log.Errorf("The credentials with ID %s does not define a private key", cred.ID)
-		return false
+		return fmt.Errorf("The credentials with ID %s does not define a private key", cred.ID)
 	}
-	return true
+	return nil
 }

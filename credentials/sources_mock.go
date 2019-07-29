@@ -62,10 +62,10 @@ func (mr *MockSourceMockRecorder) Type() *gomock.Call {
 }
 
 // ValidateConfiguration mocks base method
-func (m *MockSource) ValidateConfiguration() bool {
+func (m *MockSource) ValidateConfiguration() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidateConfiguration")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -128,10 +128,10 @@ func (mr *MockSourceCollectionMockRecorder) Credentials() *gomock.Call {
 }
 
 // ValidateConfiguration mocks base method
-func (m *MockSourceCollection) ValidateConfiguration() bool {
+func (m *MockSourceCollection) ValidateConfiguration() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidateConfiguration")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 

@@ -32,9 +32,9 @@ func (cred *SecretTextCredentials) ToString(showSensitive bool) string {
 
 // Validate verifies that the credentials is valid.
 // A SecretTextCredentials is always considered valid, as empty values are accepted.
-func (cred *SecretTextCredentials) Validate() bool {
+func (cred *SecretTextCredentials) Validate() error {
 	if cred.Secret == "" && cred.Value != "" {
 		cred.Secret = cred.Value
 	}
-	return true
+	return nil
 }

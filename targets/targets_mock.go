@@ -34,10 +34,10 @@ func (m *MockTarget) EXPECT() *MockTargetMockRecorder {
 }
 
 // BaseValidateConfiguration mocks base method
-func (m *MockTarget) BaseValidateConfiguration() bool {
+func (m *MockTarget) BaseValidateConfiguration() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BaseValidateConfiguration")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -174,10 +174,10 @@ func (mr *MockTargetMockRecorder) UpdateCredentials(arg0 interface{}) *gomock.Ca
 }
 
 // ValidateConfiguration mocks base method
-func (m *MockTarget) ValidateConfiguration() bool {
+func (m *MockTarget) ValidateConfiguration() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidateConfiguration")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -225,10 +225,10 @@ func (mr *MockTargetCollectionMockRecorder) AllTargets() *gomock.Call {
 }
 
 // ValidateConfiguration mocks base method
-func (m *MockTargetCollection) ValidateConfiguration() bool {
+func (m *MockTargetCollection) ValidateConfiguration() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ValidateConfiguration")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 

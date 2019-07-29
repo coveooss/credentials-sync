@@ -33,10 +33,10 @@ func (m *MockCredentials) EXPECT() *MockCredentialsMockRecorder {
 }
 
 // BaseValidate mocks base method
-func (m *MockCredentials) BaseValidate() bool {
+func (m *MockCredentials) BaseValidate() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "BaseValidate")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 
@@ -89,10 +89,10 @@ func (mr *MockCredentialsMockRecorder) ToString(arg0 interface{}) *gomock.Call {
 }
 
 // Validate mocks base method
-func (m *MockCredentials) Validate() bool {
+func (m *MockCredentials) Validate() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Validate")
-	ret0, _ := ret[0].(bool)
+	ret0, _ := ret[0].(error)
 	return ret0
 }
 

@@ -3,8 +3,6 @@ package credentials
 import (
 	"fmt"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // AmazonWebServicesCredentials represents an access key id and a secret access key from AWS. A role to assume can also be defined
@@ -35,24 +33,21 @@ func (cred *AmazonWebServicesCredentials) ToString(showSensitive bool) string {
 
 // Validate verifies that the credentials is valid.
 // A AmazonWebServicesCredentials must define an access key and a secret access key
-func (cred *AmazonWebServicesCredentials) Validate() bool {
+func (cred *AmazonWebServicesCredentials) Validate() error {
 	if cred.AccessKey == "" && cred.SecretKey == "" && cred.Value != "" {
 		splitValue := strings.Split(cred.Value, ":")
 		if len(splitValue) != 2 {
-			log.Errorf("The credentials with ID %s has an invalid access_key:secret_key value: %s", cred.ID, cred.Value)
-			return false
+			return fmt.Errorf("The credentials with ID %s has an invalid access_key:secret_key value: %s", cred.ID, cred.Value)
 		}
 		cred.AccessKey = splitValue[0]
 		cred.SecretKey = splitValue[1]
 	}
 
 	if cred.AccessKey == "" {
-		log.Errorf("The credentials with ID %s does not define an access key", cred.ID)
-		return false
+		return fmt.Errorf("The credentials with ID %s does not define an access key", cred.ID)
 	}
 	if cred.SecretKey == "" {
-		log.Errorf("The credentials with ID %s does not define an secret key", cred.ID)
-		return false
+		return fmt.Errorf("The credentials with ID %s does not define an secret key", cred.ID)
 	}
-	return true
+	return nil
 }

@@ -10,14 +10,14 @@ func TestConfigValidateConfiguration(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
-		name     string
-		targets  []*JenkinsTarget
-		expected bool
+		name        string
+		targets     []*JenkinsTarget
+		expectError bool
 	}{
 		{
-			name:     "no targets",
-			targets:  []*JenkinsTarget{},
-			expected: true,
+			name:        "no targets",
+			targets:     []*JenkinsTarget{},
+			expectError: false,
 		},
 		{
 			name: "valid target",
@@ -27,7 +27,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 					URL:  "https://test.com",
 				},
 			},
-			expected: true,
+			expectError: false,
 		},
 		{
 			name: "no name",
@@ -37,7 +37,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 					URL:  "https://test.com",
 				},
 			},
-			expected: false,
+			expectError: true,
 		},
 		{
 			name: "two actions for unsynced credentials",
@@ -47,7 +47,7 @@ func TestConfigValidateConfiguration(t *testing.T) {
 					URL:  "https://test.com",
 				},
 			},
-			expected: false,
+			expectError: true,
 		},
 		{
 			name: "bad url (validated by Jenkins)",
@@ -57,13 +57,13 @@ func TestConfigValidateConfiguration(t *testing.T) {
 					URL:  "bad",
 				},
 			},
-			expected: false,
+			expectError: true,
 		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			config := &Configuration{JenkinsTargets: tt.targets}
-			assert.Equal(t, tt.expected, config.ValidateConfiguration())
+			assert.Equal(t, tt.expectError, config.ValidateConfiguration() != nil)
 			for i, gottenItem := range config.AllTargets() {
 				assert.Equal(t, tt.targets[i], gottenItem)
 			}

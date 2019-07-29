@@ -4,17 +4,18 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/hashicorp/go-multierror"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 )
 
 // Credentials defines the methods that can be called by all types of credentials
 type Credentials interface {
-	BaseValidate() bool
+	BaseValidate() error
 	GetID() string
 	ShouldSync(targetName string, targetTags map[string]string) bool
 	ToString(bool) string
-	Validate() bool
+	Validate() error
 }
 
 type targetTagsMatcher struct {
@@ -47,14 +48,14 @@ func (credBase *Base) BaseToString() string {
 }
 
 // BaseValidate verifies that the credentials fields common to all types of credentials contain valid values
-func (credBase *Base) BaseValidate() bool {
+func (credBase *Base) BaseValidate() error {
 	if credBase.ID == "" {
-		log.Errorf("Credentials (%s) has no defined ID", credBase.BaseToString())
+		return fmt.Errorf("Credentials (%s) has no defined ID", credBase.BaseToString())
 	}
 	if credBase.CredType == "" {
-		log.Errorf("Credentials (%s) has no type. This is probably a bug in the software", credBase.ID)
+		return fmt.Errorf("Credentials (%s) has no type. This is probably a bug in the software", credBase.ID)
 	}
-	return credBase.ID != "" && credBase.CredType != ""
+	return nil
 }
 
 // GetDescriptionOrID returns the description if it set, otherwise it returns the ID
@@ -145,8 +146,15 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 		return nil, errors.New("Unknown credentials type")
 	}
 	mapstructure.Decode(credentialsMap, credentials)
-	if !credentials.BaseValidate() || !credentials.Validate() {
-		return nil, errors.New("The following credentials failed to validate: \n	" + credentials.ToString(false))
+	var validationErrors error
+	if err := credentials.BaseValidate(); err != nil {
+		validationErrors = multierror.Append(validationErrors, err)
+	}
+	if err := credentials.Validate(); err != nil {
+		validationErrors = multierror.Append(validationErrors, err)
+	}
+	if validationErrors != nil {
+		return nil, fmt.Errorf("The following credentials failed to validate: %v -> %v", credentials.ToString(false), validationErrors)
 	}
 	return credentials, nil
 }

@@ -8,22 +8,31 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	log "github.com/sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/service/secretsmanager/secretsmanageriface"
 )
 
 // AWSSecretsManagerSource represents AWS SecretsManager secrets containing credentials
 type AWSSecretsManagerSource struct {
 	SecretPrefix string `mapstructure:"secret_prefix"`
 	SecretID     string `mapstructure:"secret_id"`
+
+	client secretsmanageriface.SecretsManagerAPI
+}
+
+func (source *AWSSecretsManagerSource) getClient() secretsmanageriface.SecretsManagerAPI {
+	if source.client == nil {
+		sess := session.Must(session.NewSessionWithOptions(session.Options{
+			SharedConfigState:       session.SharedConfigEnable,
+			AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
+		}))
+		source.client = secretsmanager.New(sess)
+	}
+	return source.client
 }
 
 // Credentials extracts credentials from the source
 func (source *AWSSecretsManagerSource) Credentials() ([]Credentials, error) {
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState:       session.SharedConfigEnable,
-		AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
-	}))
-	client := secretsmanager.New(sess)
+	client := source.getClient()
 
 	secretIDs := []string{}
 
@@ -70,10 +79,9 @@ func (source *AWSSecretsManagerSource) Type() string {
 }
 
 // ValidateConfiguration verifies that the source's attributes are valid
-func (source *AWSSecretsManagerSource) ValidateConfiguration() bool {
+func (source *AWSSecretsManagerSource) ValidateConfiguration() error {
 	if source.SecretID == "" && source.SecretPrefix == "" {
-		log.Error("Either `secret_id` or `secret_prefix` must be defined on a secretsmanager source")
-		return false
+		return fmt.Errorf("Either `secret_id` or `secret_prefix` must be defined on a secretsmanager source")
 	}
-	return true
+	return nil
 }

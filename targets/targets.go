@@ -5,13 +5,13 @@ import (
 	"strings"
 
 	"github.com/coveooss/credentials-sync/credentials"
-	log "github.com/sirupsen/logrus"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Target represents an endpoint where credentials can be synced
 type Target interface {
 	// Base
-	BaseValidateConfiguration() bool
+	BaseValidateConfiguration() error
 	GetName() string
 	GetTags() map[string]string
 	ShouldDeleteUnsynced() bool
@@ -23,7 +23,7 @@ type Target interface {
 	ToString() string
 	DeleteCredentials(id string) error
 	UpdateCredentials(credentials.Credentials) error
-	ValidateConfiguration() bool
+	ValidateConfiguration() error
 }
 
 // Base contains attributes which are common to all targets
@@ -44,16 +44,14 @@ func (targetBase *Base) BaseToString() string {
 }
 
 // BaseValidateConfiguration validates the target's base attributes
-func (targetBase *Base) BaseValidateConfiguration() bool {
+func (targetBase *Base) BaseValidateConfiguration() error {
 	if targetBase.Name == "" {
-		log.Errorf("Every target need to define a name")
-		return false
+		return fmt.Errorf("Every target need to define a name")
 	}
 	if targetBase.DeleteUnsynced && targetBase.TagUnsynced {
-		log.Errorf("Cannot set both `tag_unsynced` and `delete_unsynced` on %v", targetBase.Name)
-		return false
+		return fmt.Errorf("Cannot set both `tag_unsynced` and `delete_unsynced` on %v", targetBase.Name)
 	}
-	return true
+	return nil
 }
 
 // GetName returns the target's name
@@ -88,7 +86,7 @@ func HasCredential(target Target, id string) bool {
 
 type TargetCollection interface {
 	AllTargets() []Target
-	ValidateConfiguration() bool
+	ValidateConfiguration() error
 }
 
 // Configuration contains all configured targets
@@ -106,12 +104,15 @@ func (config *Configuration) AllTargets() []Target {
 }
 
 // ValidateConfiguration verifies that all targets are correctly configured
-func (config *Configuration) ValidateConfiguration() bool {
-	configIsOK := true
+func (config *Configuration) ValidateConfiguration() error {
+	var validationErrors error
 	for _, target := range config.AllTargets() {
-		if !target.ValidateConfiguration() || !target.BaseValidateConfiguration() {
-			configIsOK = false
+		if err := target.BaseValidateConfiguration(); err != nil {
+			validationErrors = multierror.Append(validationErrors, err)
+		}
+		if err := target.ValidateConfiguration(); err != nil {
+			validationErrors = multierror.Append(validationErrors, err)
 		}
 	}
-	return configIsOK
+	return validationErrors
 }

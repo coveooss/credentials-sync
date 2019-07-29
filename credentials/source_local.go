@@ -1,10 +1,9 @@
 package credentials
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // LocalSource represents local files containing credentials
@@ -23,12 +22,11 @@ func (source *LocalSource) Type() string {
 }
 
 // ValidateConfiguration verifies that the source's attributes are valid
-func (source *LocalSource) ValidateConfiguration() bool {
+func (source *LocalSource) ValidateConfiguration() error {
 	if _, err := os.Stat(source.File); os.IsNotExist(err) {
-		log.Errorf("%s does not exist\n", source.File)
-		return false
+		return fmt.Errorf("%s does not exist", source.File)
 	}
-	return true
+	return nil
 }
 
 func getCredentialsFromFile(fileName string) ([]Credentials, error) {

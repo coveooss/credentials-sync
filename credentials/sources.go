@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -91,19 +92,63 @@ func (sc *SourcesConfiguration) Credentials() ([]Credentials, error) {
 
 func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
 	var (
-		err               error
-		yamlContentAsList []map[string]interface{}
-		yamlContentAsMap  map[string]map[string]interface{}
+		err             error
+		credentialsList []map[string]interface{}
 	)
-	if err = yaml.Unmarshal(byteArray, &yamlContentAsList); err != nil {
-		if err = yaml.Unmarshal(byteArray, &yamlContentAsMap); err != nil {
-			return nil, err
+
+	methods := []func(bytes []byte) ([]map[string]interface{}, error){tryReadingList, tryReadingMapOfCredentials, tryReadingSingleCredential}
+	for _, method := range methods {
+		if credentialsList, err = method(byteArray); err == nil {
+			return ParseCredentials(credentialsList)
 		}
-		yamlContentAsList = []map[string]interface{}{}
-		for id, value := range yamlContentAsMap {
-			value["id"] = id
-			yamlContentAsList = append(yamlContentAsList, value)
-		}
+		log.Debug(err)
 	}
-	return ParseCredentials(yamlContentAsList)
+
+	return nil, fmt.Errorf("Failed to parse %v. See debug for more info", byteArray)
+}
+
+// Accept list of credentials
+func tryReadingList(bytes []byte) ([]map[string]interface{}, error) {
+	var credentialsList []map[string]interface{}
+	if err := yaml.Unmarshal(bytes, &credentialsList); err != nil {
+		return nil, fmt.Errorf("Error reading %v as credentials list: %v", bytes, err)
+	}
+
+	return credentialsList, nil
+}
+
+// Accept map of credentials
+func tryReadingMapOfCredentials(bytes []byte) ([]map[string]interface{}, error) {
+	credentialsList := []map[string]interface{}{}
+
+	var credentialsMap map[string]map[string]interface{}
+	if err := yaml.Unmarshal(bytes, &credentialsMap); err != nil {
+		return nil, fmt.Errorf("Error reading %v as credentials map: %v", bytes, err)
+	}
+
+	for id, value := range credentialsMap {
+		value["id"] = id
+		credentialsList = append(credentialsList, value)
+	}
+
+	return credentialsList, nil
+}
+
+// Accept a single credential
+func tryReadingSingleCredential(bytes []byte) ([]map[string]interface{}, error) {
+	var singleCredentials map[string]interface{}
+	if err := yaml.Unmarshal(bytes, &singleCredentials); err != nil {
+		return nil, fmt.Errorf("Error reading %v as a map: %v", bytes, err)
+	}
+
+	id, gotID := singleCredentials["id"]
+	if !gotID {
+		return nil, fmt.Errorf("The parsed credentials doesn't have an ID: %v", singleCredentials)
+	}
+
+	if _, idIsString := id.(string); !idIsString {
+		return nil, fmt.Errorf("The given credentials' ID is not a string: %v", singleCredentials)
+	}
+
+	return []map[string]interface{}{singleCredentials}, nil
 }

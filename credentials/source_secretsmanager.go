@@ -80,7 +80,7 @@ func (source *AWSSecretsManagerSource) Type() string {
 
 // ValidateConfiguration verifies that the source's attributes are valid
 func (source *AWSSecretsManagerSource) ValidateConfiguration() error {
-	if source.SecretID == "" && source.SecretPrefix == "" {
+	if (source.SecretID == "" && source.SecretPrefix == "") || (source.SecretID != "" && source.SecretPrefix != "") {
 		return fmt.Errorf("Either `secret_id` or `secret_prefix` must be defined on a secretsmanager source")
 	}
 	return nil

@@ -17,6 +17,12 @@ const (
 	s3Key    = "a/key"
 )
 
+
+func TestCreateS3Source(t *testing.T) {
+	s3Source := &AWSS3Source{}
+	assert.NotNil(t, s3Source.getClient())
+}
+
 func TestS3SourceValidate(t *testing.T) {
 	t.Parallel()
 

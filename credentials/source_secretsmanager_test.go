@@ -31,6 +31,11 @@ var expectedSecretsManagerCredentials = func() []Credentials {
 	return append(testCredentials, expectedCred)
 }()
 
+func TestCreateSecretsManagerSource(t *testing.T) {
+	secretsManagerSource := &AWSSecretsManagerSource{}
+	assert.NotNil(t, secretsManagerSource.getClient())
+}
+
 func TestSecretsManagerSourceValidate(t *testing.T) {
 	t.Parallel()
 

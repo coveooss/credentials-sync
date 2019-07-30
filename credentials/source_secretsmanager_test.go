@@ -32,6 +32,8 @@ var expectedSecretsManagerCredentials = func() []Credentials {
 }()
 
 func TestCreateSecretsManagerSource(t *testing.T) {
+	t.Parallel()
+
 	secretsManagerSource := &AWSSecretsManagerSource{}
 	assert.NotNil(t, secretsManagerSource.getClient())
 }
@@ -111,6 +113,8 @@ func (m *mockSecretsManagerClient) GetSecretValue(input *secretsmanager.GetSecre
 }
 
 func TestGetCredentialsFromSecretsManagerSourceWithPrefix(t *testing.T) {
+	t.Parallel()
+
 	secretsManagerSource := &AWSSecretsManagerSource{
 		SecretPrefix: prefix,
 		client:       &mockSecretsManagerClient{t: t},
@@ -124,6 +128,8 @@ func TestGetCredentialsFromSecretsManagerSourceWithPrefix(t *testing.T) {
 }
 
 func TestGetCredentialsFromSecretsManagerSourceWithID(t *testing.T) {
+	t.Parallel()
+
 	secretsManagerSource := &AWSSecretsManagerSource{
 		SecretID: firstSecretARN,
 		client:   &mockSecretsManagerClient{t: t},
@@ -137,6 +143,8 @@ func TestGetCredentialsFromSecretsManagerSourceWithID(t *testing.T) {
 }
 
 func TestGetCredentialsFromSecretsManagerSourceWithUnknownPrefix(t *testing.T) {
+	t.Parallel()
+
 	// Third credentials crashes the GetSecretValue call
 	secretsManagerSource := &AWSSecretsManagerSource{
 		SecretPrefix: "bad",
@@ -149,6 +157,8 @@ func TestGetCredentialsFromSecretsManagerSourceWithUnknownPrefix(t *testing.T) {
 }
 
 func TestGetCredentialsFromSecretsManagerSourceWithBadPrefix(t *testing.T) {
+	t.Parallel()
+
 	// Third credentials crashes the GetSecretValue call
 	secretsManagerSource := &AWSSecretsManagerSource{
 		SecretPrefix: thirdSecretName,

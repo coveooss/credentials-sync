@@ -159,3 +159,19 @@ func TestShouldSyncCredentials(t *testing.T) {
 		})
 	}
 }
+
+func TestGetDescriptionOrID(t *testing.T) {
+	t.Parallel()
+
+	cred := &Base{
+		ID:       "test",
+		CredType: "aType",
+	}
+
+	assert.Equal(t, "test", cred.GetDescriptionOrID())
+	assert.Equal(t, "test -> Type: aType", cred.BaseToString())
+
+	cred.Description = "other"
+	assert.Equal(t, "other", cred.GetDescriptionOrID())
+	assert.Equal(t, "test -> Type: aType, Description: other", cred.BaseToString())
+}

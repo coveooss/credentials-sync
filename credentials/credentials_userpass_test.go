@@ -22,6 +22,18 @@ func TestParseUserPassCredentialsFromValue(t *testing.T) {
 	assert.Equal(t, "pass", cred.Password)
 }
 
+func TestParseUserPassCredentialsFromInvalidValue(t *testing.T) {
+	t.Parallel()
+
+	_, err := ParseSingleCredentials(map[string]interface{}{
+		"id":    "test",
+		"type":  "usernamepassword",
+		"value": "user",
+	})
+
+	assert.Error(t, err)
+}
+
 func TestUserPassCredentialsToString(t *testing.T) {
 	cred := NewUsernamePassword()
 	cred.ID = "test"

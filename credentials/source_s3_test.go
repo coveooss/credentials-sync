@@ -17,8 +17,9 @@ const (
 	s3Key    = "a/key"
 )
 
-
 func TestCreateS3Source(t *testing.T) {
+	t.Parallel()
+
 	s3Source := &AWSS3Source{}
 	assert.NotNil(t, s3Source.getClient())
 }
@@ -73,6 +74,8 @@ func (m *mockS3Client) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput,
 }
 
 func TestGetCredentialsFromS3Source(t *testing.T) {
+	t.Parallel()
+
 	s3Source := &AWSS3Source{
 		Bucket: s3Bucket,
 		Key:    s3Key,

@@ -22,6 +22,18 @@ func TestParseAwsCredentialsFromValue(t *testing.T) {
 	assert.Equal(t, "secret", cred.SecretKey)
 }
 
+func TestParseAwsCredentialsFromInvalidValue(t *testing.T) {
+	t.Parallel()
+
+	_, err := ParseSingleCredentials(map[string]interface{}{
+		"id":    "test",
+		"type":  "aws",
+		"value": "key",
+	})
+
+	assert.Error(t, err)
+}
+
 func TestAwsCredentialsValidationErrors(t *testing.T) {
 	t.Parallel()
 

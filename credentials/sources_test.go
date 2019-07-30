@@ -70,6 +70,16 @@ func TestGetCredentialsFromBytes(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name: "Cred without ID",
+			bytes: []byte(`{
+				"type": "secret",
+				"description": "test-desc",
+				"secret": "my secret"
+			}`),
+			result:  nil,
+			wantErr: true,
+		},
+		{
 			name: "Bad map",
 			bytes: []byte(`{
 				"test": "sg",

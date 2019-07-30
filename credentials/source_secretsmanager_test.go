@@ -135,3 +135,28 @@ func TestGetCredentialsFromSecretsManagerSourceWithID(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, testCredentials, credentials)
 }
+
+func TestGetCredentialsFromSecretsManagerSourceWithUnknownPrefix(t *testing.T) {
+	// Third credentials crashes the GetSecretValue call
+	secretsManagerSource := &AWSSecretsManagerSource{
+		SecretPrefix: "bad",
+		client:       &mockSecretsManagerClient{t: t},
+	}
+
+	credentials, err := secretsManagerSource.Credentials()
+	assert.EqualError(t, err, "No secrets found with the 'bad' prefix")
+	assert.Nil(t, credentials)
+}
+
+func TestGetCredentialsFromSecretsManagerSourceWithBadPrefix(t *testing.T) {
+	// Third credentials crashes the GetSecretValue call
+	secretsManagerSource := &AWSSecretsManagerSource{
+		SecretPrefix: thirdSecretName,
+		client:       &mockSecretsManagerClient{t: t},
+	}
+
+	credentials, err := secretsManagerSource.Credentials()
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "Error while fetching secret "+thirdSecretARN)
+	assert.Nil(t, credentials)
+}

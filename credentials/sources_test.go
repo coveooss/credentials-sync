@@ -70,6 +70,12 @@ func TestGetCredentialsFromBytes(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:    "SSH Creds",
+			bytes:   []byte(testSSHCredentialsString),
+			result:  []Credentials{testSSHCredentials},
+			wantErr: false,
+		},
+		{
 			name: "Cred without ID",
 			bytes: []byte(`{
 				"type": "secret",

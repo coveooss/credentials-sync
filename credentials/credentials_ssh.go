@@ -30,7 +30,7 @@ func (cred *SSHCredentials) ToString(showSensitive bool) string {
 	if cred.Username == "" {
 		username = "<empty>"
 	}
-	if cred.Passphrase == "" {
+	if passphrase == "" {
 		passphrase = "<empty>"
 	}
 	return fmt.Sprintf("%s - %s:%s", cred.BaseToString(), username, passphrase)

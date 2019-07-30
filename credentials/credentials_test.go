@@ -47,6 +47,20 @@ func TestShouldSyncCredentials(t *testing.T) {
 			expected: true,
 		},
 		{
+			name: "Bad filter (not string or list), ignored",
+			creds: &Base{
+				TargetTags: targetTagsMatcher{
+					DontMatch: map[string]interface{}{
+						"MyTag": 123,
+					},
+				},
+			},
+			targetTags: map[string]string{
+				"MyTag": "123",
+			},
+			expected: true,
+		},
+		{
 			name: "Match",
 			creds: &Base{TargetTags: targetTagsMatcher{
 				DoMatch: map[string]interface{}{
@@ -174,4 +188,70 @@ func TestGetDescriptionOrID(t *testing.T) {
 	cred.Description = "other"
 	assert.Equal(t, "other", cred.GetDescriptionOrID())
 	assert.Equal(t, "test -> Type: aType, Description: other", cred.BaseToString())
+}
+
+func TestBaseValidateCredentials(t *testing.T) {
+	t.Parallel()
+
+	credWithoutType := &Base{
+		ID: "test",
+	}
+	assert.EqualError(t, credWithoutType.BaseValidate(), "Credentials (test) has no type. This is probably a bug in the software")
+
+	credWithoutID := &Base{
+		CredType:    "test",
+		Description: "test2",
+	}
+	assert.EqualError(t, credWithoutID.BaseValidate(), "Credentials ( -> Type: test, Description: test2) has no defined ID")
+}
+
+func TestParseCredentials(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name     string
+		credMaps []map[string]interface{}
+		result   []Credentials
+		wantErr  bool
+	}{
+		{
+			name: "Invalid type",
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        "bad",
+					"description": "test-desc",
+					"secret":      "my secret",
+				},
+			},
+			result:  nil,
+			wantErr: true,
+		},
+		{
+			name: "Invalid type (not a string)",
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        1234,
+					"description": "test-desc",
+					"secret":      "my secret",
+				},
+			},
+			result:  nil,
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			gottenCreds, err := ParseCredentials(tt.credMaps)
+
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.Nil(t, err)
+			}
+			assert.Equal(t, tt.result, gottenCreds)
+		})
+	}
 }

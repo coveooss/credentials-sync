@@ -40,7 +40,7 @@ sources:
     - path: /home/jdoe/path/to/file.yaml
   aws_s3:
     - bucket: name
-    - key: path/to/file.yaml
+      key: path/to/file.yaml
   aws_secretsmanager:
     - secret_prefix: credentials-sync/
     - secret_id: arn:aws:secretsmanager:us-west-2:123456789012:secret:production/MyAwesomeAppSecret-a1b2c3
@@ -176,7 +176,6 @@ This allows you to run this as a cron job in AWS Fargate or Kubernetes, for exam
 
 ## Roadmap
 - Incremental runs (keep a state file and only update credentials that have been modified at the source level. This would have to be optional because full runs will still be need to sync back credentials that have been modified at the target level)
-- Credentials deletion (from a list of IDs)
 - LastPass target
 - Terraform state file source
 - SSM Parameter store source (not in the regular JSON format)

@@ -4,33 +4,8 @@ import (
 	"testing"
 
 	"github.com/coveooss/credentials-sync/credentials"
-	"github.com/coveooss/credentials-sync/targets"
 	"github.com/golang/mock/gomock"
 )
-
-func setSourceMock(t *testing.T, config *Configuration) (*gomock.Controller, *credentials.MockSource) {
-	ctrl := gomock.NewController(t)
-	source := credentials.NewMockSource(ctrl)
-	sourceCollection := credentials.NewMockSourceCollection(ctrl)
-	sourceCollection.EXPECT().AllSources().Return([]credentials.Source{source}).AnyTimes()
-
-	config.SetSources(sourceCollection)
-	return ctrl, source
-}
-
-func setTargetMock(t *testing.T, config *Configuration, name string, credentials []string, shouldDeleteUnsynced bool) (*gomock.Controller, *targets.MockTarget) {
-	ctrl := gomock.NewController(t)
-	target := targets.NewMockTarget(ctrl)
-	targetCollection := targets.NewMockTargetCollection(ctrl)
-	targetCollection.EXPECT().AllTargets().Return([]targets.Target{target}).AnyTimes()
-
-	target.EXPECT().GetExistingCredentials().Return(credentials).AnyTimes()
-	target.EXPECT().GetName().Return(name).AnyTimes()
-	target.EXPECT().ShouldDeleteUnsynced().Return(shouldDeleteUnsynced).AnyTimes()
-
-	config.SetTargets(targetCollection)
-	return ctrl, target
-}
 
 func TestDeleteListOfCredentials(t *testing.T) {
 	config := &Configuration{
@@ -46,7 +21,7 @@ func TestDeleteListOfCredentials(t *testing.T) {
 }
 
 func TestUpdateListOfCredentials(t *testing.T) {
-	config := &Configuration{}
+	config := NewConfiguration()
 	targetController, target := setTargetMock(t, config, "", []string{"test1"}, false)
 	defer targetController.Finish()
 
@@ -62,7 +37,7 @@ func TestUpdateListOfCredentials(t *testing.T) {
 }
 
 func TestDeleteUnsyncedCredentials(t *testing.T) {
-	config := &Configuration{}
+	config := NewConfiguration()
 	targetController, target := setTargetMock(t, config, "", []string{"unsynced"}, true)
 	defer targetController.Finish()
 

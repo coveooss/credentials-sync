@@ -35,7 +35,6 @@ func setMultipleTargetMock(t *testing.T, config *Configuration, name string, cre
 		target.EXPECT().GetTags().Return(map[string]string{}).AnyTimes()
 		target.EXPECT().ToString().Return(name).AnyTimes()
 		target.EXPECT().ShouldDeleteUnsynced().Return(shouldDeleteUnsynced).AnyTimes()
-		target.EXPECT().Initialize(gomock.Any()).AnyTimes()
 		targetsToReturn = append(targetsToReturn, target)
 		targetsToReturnInterface = append(targetsToReturnInterface, target)
 	}
@@ -47,5 +46,6 @@ func setMultipleTargetMock(t *testing.T, config *Configuration, name string, cre
 
 func setTargetMock(t *testing.T, config *Configuration, name string, credentials []string, shouldDeleteUnsynced bool) (*gomock.Controller, *targets.MockTarget) {
 	ctrl, targetsToReturn := setMultipleTargetMock(t, config, name, credentials, shouldDeleteUnsynced, 1)
+	targetsToReturn[0].EXPECT().Initialize(gomock.Any()).AnyTimes()
 	return ctrl, targetsToReturn[0]
 }

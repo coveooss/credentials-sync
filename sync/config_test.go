@@ -53,8 +53,8 @@ func TestSyncCredentialsAndDeleteUnsyncedWithContinueOnError(t *testing.T) {
 	cred1.ID = "test1"
 	cred2.ID = "test2"
 
-	config := &Configuration{StopOnError: false, TargetParallelism: 1}
-	targetController, targets := setMultipleTargetMock(t, config, "target", []string{"test3", "test4"}, true, 2)
+	config := &Configuration{StopOnError: false, TargetParallelism: 1, CredentialsToDelete: []string{"bad", "bad2"}}
+	targetController, targets := setMultipleTargetMock(t, config, "target", []string{"test3", "test4", "bad", "bad2"}, true, 2)
 	sourceController, _ := setSourceMock(t, config, []credentials.Credentials{cred1, cred2})
 	defer targetController.Finish()
 	defer sourceController.Finish()
@@ -65,11 +65,15 @@ func TestSyncCredentialsAndDeleteUnsyncedWithContinueOnError(t *testing.T) {
 
 	// Second target fails update on first cred but succeeds on second
 	targets[1].EXPECT().UpdateCredentials(cred1).Return(fmt.Errorf("Dummy error")).Times(1)
-	targets[1].EXPECT().UpdateCredentials(cred2).Return(nil).Times(1)
+	targets[1].EXPECT().UpdateCredentials(cred2).Times(1)
 
 	// Second target fails delete on first cred but succeeds on second
 	targets[1].EXPECT().DeleteCredentials("test3").Return(fmt.Errorf("Dummy error")).Times(1)
-	targets[1].EXPECT().DeleteCredentials("test4").Return(nil).Times(1)
+	targets[1].EXPECT().DeleteCredentials("test4").Times(1)
+
+	// Second target fails deleting the first listed credentials but tries the second
+	targets[1].EXPECT().DeleteCredentials("bad").Return(fmt.Errorf("Dummy error")).Times(2)
+	targets[1].EXPECT().DeleteCredentials("bad2").Times(2)
 
 	assert.Nil(t, config.Sync())
 }
@@ -88,7 +92,7 @@ func TestSyncCredentialsFailOnInitialize(t *testing.T) {
 	targets[0].EXPECT().Initialize(gomock.Any()).Return(fmt.Errorf("Dummy error1")).AnyTimes()
 	targets[1].EXPECT().Initialize(gomock.Any()).Return(nil).AnyTimes()
 
-	assert.EqualError(t, config.Sync(), "Target `target` has failed initialization: Dummy error1")
+	assert.EqualError(t, config.Sync(), "Target `target-0` has failed initialization: Dummy error1")
 }
 
 func TestSyncCredentialsFailOnCredentialsUpdate(t *testing.T) {
@@ -110,16 +114,16 @@ func TestSyncCredentialsFailOnCredentialsUpdate(t *testing.T) {
 	targets[0].EXPECT().UpdateCredentials(gomock.Any()).Return(nil).AnyTimes()
 	targets[1].EXPECT().UpdateCredentials(cred1).Return(fmt.Errorf("Dummy error2")).Times(1)
 
-	assert.EqualError(t, config.Sync(), "Failed to send credentials with ID test1 to target: Dummy error2")
+	assert.EqualError(t, config.Sync(), "Failed to send credentials with ID test1 to target-1: Dummy error2")
 }
 
-func TestSyncCredentialsFailOnCredentialsDelete(t *testing.T) {
+func TestSyncCredentialsFailOnsDeleteUnsyncedCredentials(t *testing.T) {
 	cred1, cred2 := credentials.NewSecretText(), credentials.NewSecretText()
 	cred1.ID = "test1"
 	cred2.ID = "test2"
 
 	config := &Configuration{StopOnError: true, TargetParallelism: 1}
-	targetController, targets := setMultipleTargetMock(t, config, "target", []string{"test3", "test4"}, true, 2)
+	targetController, targets := setMultipleTargetMock(t, config, "target", []string{"test2", "test3"}, true, 2)
 	sourceController, _ := setSourceMock(t, config, []credentials.Credentials{cred1, cred2})
 	defer targetController.Finish()
 	defer sourceController.Finish()
@@ -136,5 +140,23 @@ func TestSyncCredentialsFailOnCredentialsDelete(t *testing.T) {
 	targets[0].EXPECT().DeleteCredentials("test3").Return(fmt.Errorf("Dummy error3")).Times(1)
 	targets[1].EXPECT().DeleteCredentials(gomock.Any()).Return(nil).AnyTimes()
 
-	assert.EqualError(t, config.Sync(), "Failed to delete credentials with ID test3 to target: Dummy error3")
+	assert.EqualError(t, config.Sync(), "Failed to delete credentials with ID test3 from target-0: Dummy error3")
+}
+
+func TestSyncCredentialsFailOnsDeleteListedCredentials(t *testing.T) {
+	config := &Configuration{StopOnError: true, TargetParallelism: 1, CredentialsToDelete: []string{"bad2", "bad3"}}
+	targetController, targets := setMultipleTargetMock(t, config, "target", []string{"bad", "bad2", "bad3"}, false, 2)
+	sourceController, _ := setSourceMock(t, config, []credentials.Credentials{})
+	defer targetController.Finish()
+	defer sourceController.Finish()
+
+	// Initialize works for both targets
+	targets[0].EXPECT().Initialize(gomock.Any()).Return(nil).AnyTimes()
+	targets[1].EXPECT().Initialize(gomock.Any()).Return(nil).AnyTimes()
+
+	// Delete credentials fails for first target but succeeds for second
+	targets[0].EXPECT().DeleteCredentials(gomock.Any()).Return(nil).AnyTimes()
+	targets[1].EXPECT().DeleteCredentials("bad2").Return(fmt.Errorf("Dummy error4")).Times(1)
+
+	assert.EqualError(t, config.Sync(), "Failed to delete credentials with ID bad2 from target-1: Dummy error4")
 }

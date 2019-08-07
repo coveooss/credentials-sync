@@ -14,7 +14,7 @@ func (config *Configuration) DeleteListOfCredentials(target targets.Target) erro
 		if targets.HasCredential(target, id) {
 			log.Infof("[%s] Deleting %s", target.GetName(), id)
 			if err := target.DeleteCredentials(id); err != nil {
-				err = fmt.Errorf("Failed to delete credential %s from %s: %v", id, target.GetName(), err)
+				err = fmt.Errorf("Failed to delete credentials with ID %s from %s: %v", id, target.GetName(), err)
 				if config.StopOnError {
 					return err
 				}
@@ -54,7 +54,7 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 			if !isSynced(existingID) {
 				log.Infof("[%s] Deleting %s", target.GetName(), existingID)
 				if err := target.DeleteCredentials(existingID); err != nil {
-					err = fmt.Errorf("Failed to delete credentials with ID %s to %s: %v", existingID, target.GetName(), err)
+					err = fmt.Errorf("Failed to delete credentials with ID %s from %s: %v", existingID, target.GetName(), err)
 					if config.StopOnError {
 						return err
 					}

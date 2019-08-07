@@ -1,6 +1,7 @@
 package sync
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/coveooss/credentials-sync/credentials"
@@ -28,12 +29,12 @@ func setMultipleTargetMock(t *testing.T, config *Configuration, name string, cre
 
 	targetsToReturn := []*targets.MockTarget{}
 	targetsToReturnInterface := []targets.Target{}
-	for i := 1; i <= targetNumber; i++ {
+	for i := 0; i < targetNumber; i++ {
 		target := targets.NewMockTarget(ctrl)
 		target.EXPECT().GetExistingCredentials().Return(credentials).AnyTimes()
-		target.EXPECT().GetName().Return(name).AnyTimes()
+		target.EXPECT().GetName().Return(fmt.Sprintf("%s-%v", name, i)).AnyTimes()
 		target.EXPECT().GetTags().Return(map[string]string{}).AnyTimes()
-		target.EXPECT().ToString().Return(name).AnyTimes()
+		target.EXPECT().ToString().Return(fmt.Sprintf("%s-%v", name, i)).AnyTimes()
 		target.EXPECT().ShouldDeleteUnsynced().Return(shouldDeleteUnsynced).AnyTimes()
 		targetsToReturn = append(targetsToReturn, target)
 		targetsToReturnInterface = append(targetsToReturnInterface, target)

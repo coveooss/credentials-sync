@@ -106,14 +106,14 @@ func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
 		log.Debug(err)
 	}
 
-	return nil, fmt.Errorf("Failed to parse %v. See debug for more info", byteArray)
+	return nil, fmt.Errorf("Failed to parse %v. See debug for more info", string(byteArray))
 }
 
 // Accept list of credentials
 func tryReadingList(bytes []byte) ([]map[string]interface{}, error) {
 	var credentialsList []map[string]interface{}
 	if err := yaml.Unmarshal(bytes, &credentialsList); err != nil {
-		return nil, fmt.Errorf("Error reading %v as credentials list: %v", bytes, err)
+		return nil, fmt.Errorf("Error reading as credentials list: %v", err)
 	}
 
 	return credentialsList, nil
@@ -125,7 +125,7 @@ func tryReadingMapOfCredentials(bytes []byte) ([]map[string]interface{}, error) 
 
 	var credentialsMap map[string]map[string]interface{}
 	if err := yaml.Unmarshal(bytes, &credentialsMap); err != nil {
-		return nil, fmt.Errorf("Error reading %v as credentials map: %v", bytes, err)
+		return nil, fmt.Errorf("Error reading as credentials map: %v", err)
 	}
 
 	for id, value := range credentialsMap {
@@ -140,7 +140,7 @@ func tryReadingMapOfCredentials(bytes []byte) ([]map[string]interface{}, error) 
 func tryReadingSingleCredential(bytes []byte) ([]map[string]interface{}, error) {
 	var singleCredentials map[string]interface{}
 	if err := yaml.Unmarshal(bytes, &singleCredentials); err != nil {
-		return nil, fmt.Errorf("Error reading %v as a map: %v", bytes, err)
+		return nil, fmt.Errorf("Error reading as a map: %v", err)
 	}
 
 	id, gotID := singleCredentials["id"]

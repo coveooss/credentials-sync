@@ -33,9 +33,6 @@ var rootCmd = &cobra.Command{
 	targets that do not support external credentials.
 	Support Jenkins only for now.`,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-		configuration = sync.NewConfiguration()
-		sourcesConfiguration := &credentials.SourcesConfiguration{}
-		targetsConfiguration := &targets.Configuration{}
 		var (
 			configurationDict = map[string]interface{}{}
 			configurationFile = viper.GetString("config")
@@ -43,9 +40,19 @@ var rootCmd = &cobra.Command{
 			fileContent       []byte
 		)
 
+		level, err := log.ParseLevel(viper.GetString("log-level"))
+		if err != nil {
+			return fmt.Errorf("Invalid log level: %s", err)
+		}
+		log.SetLevel(level)
+
 		if configurationFile == "" {
 			return fmt.Errorf("A configuration file must be defined")
 		}
+
+		configuration = sync.NewConfiguration()
+		sourcesConfiguration := &credentials.SourcesConfiguration{}
+		targetsConfiguration := &targets.Configuration{}
 
 		if strings.HasPrefix(configurationFile, "s3://") {
 			sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -104,11 +111,12 @@ func init() {
 
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("sync")
+	viper.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	rootCmd.PersistentFlags().StringP("config", "c", "", "configuration file")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 
-	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose output")
-	viper.BindPFlag("verbose", rootCmd.PersistentFlags().Lookup("verbose"))
+	rootCmd.PersistentFlags().StringP("log-level", "l", log.InfoLevel.String(), `"debug", "info", "warning" or "error"`)
+	viper.BindPFlag("log-level", rootCmd.PersistentFlags().Lookup("log-level"))
 
 	initListCredentials()
 	rootCmd.AddCommand(listTargetsCmd, syncCmd, validateCmd)

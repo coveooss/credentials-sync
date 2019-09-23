@@ -25,6 +25,14 @@ What's the point?
 credentials-sync sync -c config.yml
 ```
 
+## Logging
+
+The log level can be set with either:
+  - The `--log-level` option
+  - The `SYNC_LOG_LEVEL` env variable
+
+Valid levels are `debug`, `info`, `warning` and `error`
+
 ![example](https://raw.githubusercontent.com/coveooss/credentials-sync/master/example.png)
 
 ## Configuration file

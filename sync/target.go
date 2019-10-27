@@ -50,8 +50,11 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 
 	if target.ShouldDeleteUnsynced() {
 		log.Debugf("Deleting unsynced credentials from %v", target.GetName())
-		for _, existingID := range target.GetExistingCredentials() {
-			if !isSynced(existingID) {
+	}
+
+	for _, existingID := range target.GetExistingCredentials() {
+		if !isSynced(existingID) {
+			if target.ShouldDeleteUnsynced() {
 				log.Infof("[%s] Deleting %s", target.GetName(), existingID)
 				if err := target.DeleteCredentials(existingID); err != nil {
 					err = fmt.Errorf("Failed to delete credentials with ID %s from %s: %v", existingID, target.GetName(), err)
@@ -60,6 +63,8 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 					}
 					log.Error(err)
 				}
+			} else {
+				log.Infof("[%s] %s is unsynced. Not modifying it", target.GetName(), existingID)
 			}
 		}
 	}

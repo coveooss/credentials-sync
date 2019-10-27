@@ -15,7 +15,7 @@ type Target interface {
 	GetName() string
 	GetTags() map[string]string
 	ShouldDeleteUnsynced() bool
-	ShouldTagUnsynced() bool
+	ShouldTagUnsynced() bool // Not implemented
 
 	// To implement
 	GetExistingCredentials() []string

@@ -13,6 +13,7 @@ import (
 type Credentials interface {
 	BaseValidate() error
 	GetID() string
+	GetTargetID() string
 	ShouldSync(targetName string, targetTags map[string]string) bool
 	ToString(bool) string
 	Validate() error
@@ -30,6 +31,7 @@ type Base struct {
 	NoSync      bool              `mapstructure:"no_sync"`
 	TargetName  string            `mapstructure:"target"`
 	TargetTags  targetTagsMatcher `mapstructure:"target_tags"`
+	TargetID    string            `mapstructure:"target_id"`
 
 	// Field set by constructor
 	CredType string
@@ -69,6 +71,15 @@ func (credBase *Base) GetDescriptionOrID() string {
 // GetID returns a credentials' ID
 func (credBase *Base) GetID() string {
 	return credBase.ID
+}
+
+// GetTargetID returns a credentials' Target ID (Essentially, the name that the credentials should have on a target)
+// This is helpful to have different credentials with the same target ID (on different targets)
+func (credBase *Base) GetTargetID() string {
+	if credBase.TargetID != "" {
+		return credBase.TargetID
+	}
+	return credBase.GetID()
 }
 
 // ShouldSync returns, given a target's name and tags, if a credentials should be synced to that target

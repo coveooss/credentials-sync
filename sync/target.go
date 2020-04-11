@@ -30,7 +30,7 @@ func (config *Configuration) DeleteListOfCredentials(target targets.Target) erro
 func (config *Configuration) UpdateListOfCredentials(target targets.Target, listOfCredentials []credentials.Credentials) error {
 	isSynced := func(id string) bool {
 		for _, credentials := range listOfCredentials {
-			if credentials.GetID() == id {
+			if credentials.GetTargetID() == id {
 				return true
 			}
 		}
@@ -38,9 +38,9 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 	}
 
 	for _, credentials := range listOfCredentials {
-		log.Infof("[%s] Syncing %s", target.GetName(), credentials.GetID())
+		log.Infof("[%s] Syncing %s", target.GetName(), credentials.GetTargetID())
 		if err := target.UpdateCredentials(credentials); err != nil {
-			err = fmt.Errorf("Failed to send credentials with ID %s to %s: %v", credentials.GetID(), target.GetName(), err)
+			err = fmt.Errorf("Failed to send credentials with ID %s to %s: %v", credentials.GetTargetID(), target.GetName(), err)
 			if config.StopOnError {
 				return err
 			}

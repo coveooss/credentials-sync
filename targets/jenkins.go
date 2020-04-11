@@ -85,8 +85,8 @@ func (jenkins *JenkinsTarget) UpdateCredentials(cred credentials.Credentials) er
 	if jenkinsCred == nil {
 		return fmt.Errorf("Unable to create jenkins credentials from %s", cred.GetID())
 	}
-	if HasCredential(jenkins, cred.GetID()) {
-		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetID(), jenkinsCred)
+	if HasCredential(jenkins, cred.GetTargetID()) {
+		return jenkins.credentialsManager.Update(credentialsDomain, cred.GetTargetID(), jenkinsCred)
 	}
 	return jenkins.credentialsManager.Add(credentialsDomain, jenkinsCred)
 }
@@ -104,7 +104,7 @@ func toJenkinsCredential(creds credentials.Credentials) interface{} {
 	case *credentials.AmazonWebServicesCredentials:
 		castCreds := creds.(*credentials.AmazonWebServicesCredentials)
 		return &gojenkins.AmazonWebServicesCredentials{
-			ID:                 creds.GetID(),
+			ID:                 creds.GetTargetID(),
 			Description:        castCreds.GetDescriptionOrID(),
 			AccessKey:          castCreds.AccessKey,
 			SecretKey:          castCreds.SecretKey,
@@ -114,14 +114,14 @@ func toJenkinsCredential(creds credentials.Credentials) interface{} {
 	case *credentials.SecretTextCredentials:
 		castCreds := creds.(*credentials.SecretTextCredentials)
 		return &gojenkins.StringCredentials{
-			ID:          creds.GetID(),
+			ID:          creds.GetTargetID(),
 			Description: castCreds.GetDescriptionOrID(),
 			Secret:      castCreds.Secret,
 		}
 	case *credentials.UsernamePasswordCredentials:
 		castCreds := creds.(*credentials.UsernamePasswordCredentials)
 		return &gojenkins.UsernameCredentials{
-			ID:          castCreds.GetID(),
+			ID:          castCreds.GetTargetID(),
 			Description: castCreds.GetDescriptionOrID(),
 			Username:    castCreds.Username,
 			Password:    castCreds.Password,
@@ -129,7 +129,7 @@ func toJenkinsCredential(creds credentials.Credentials) interface{} {
 	case *credentials.SSHCredentials:
 		castCreds := creds.(*credentials.SSHCredentials)
 		return &gojenkins.SSHCredentials{
-			ID:          castCreds.GetID(),
+			ID:          castCreds.GetTargetID(),
 			Description: castCreds.GetDescriptionOrID(),
 			Username:    castCreds.Username,
 			Passphrase:  castCreds.Passphrase,

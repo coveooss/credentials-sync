@@ -54,6 +54,9 @@ sources:
     - secret_id: arn:aws:secretsmanager:us-west-2:123456789012:secret:production/MyAwesomeAppSecret-a1b2c3
 stop_on_error: true   # If true, will completely stop the process if an operation fails. Otherwise, continues anyways
 target_parallelism: 3 # Number of target on which to sync creds at the same time
+credentials_to_delete: # These will be removed from every target
+  - number1
+  - number2
 targets:
   jenkins:
     - name: toolsjenkins
@@ -71,16 +74,20 @@ The source's value must either be a list or a map in the following formats (JSON
 ```yaml
 # list
 - id: my_cred
+  target_id: id_on_target # Optional, defaults to the ID
   description: a description
   ...
 - id: my_other_cred
+  target_id: id_on_target # Optional, defaults to the ID
   ...
 
 # map
 my_cred:
+  target_id: id_on_target # Optional, defaults to the ID
   description: a description
   ...
 my_other_cred:
+  target_id: id_on_target # Optional, defaults to the ID
   ...
 ```
 

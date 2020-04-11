@@ -60,6 +60,20 @@ func (mr *MockCredentialsMockRecorder) GetID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetID", reflect.TypeOf((*MockCredentials)(nil).GetID))
 }
 
+// GetTargetID mocks base method
+func (m *MockCredentials) GetTargetID() string {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetTargetID")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// GetTargetID indicates an expected call of GetTargetID
+func (mr *MockCredentialsMockRecorder) GetTargetID() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTargetID", reflect.TypeOf((*MockCredentials)(nil).GetTargetID))
+}
+
 // ShouldSync mocks base method
 func (m *MockCredentials) ShouldSync(targetName string, targetTags map[string]string) bool {
 	m.ctrl.T.Helper()

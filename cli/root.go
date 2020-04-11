@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/mitchellh/mapstructure"
@@ -56,7 +57,8 @@ var rootCmd = &cobra.Command{
 
 		if strings.HasPrefix(configurationFile, "s3://") {
 			sess := session.Must(session.NewSessionWithOptions(session.Options{
-				SharedConfigState: session.SharedConfigEnable,
+				SharedConfigState:       session.SharedConfigEnable,
+				AssumeRoleTokenProvider: stscreds.StdinTokenProvider,
 			}))
 			s3Client := s3.New(sess)
 			splitS3Path, err := url.Parse(configurationFile)

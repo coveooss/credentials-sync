@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-// GithubAppCredentials represents credentials composed of a private key, username and passphrase
+// GithubAppCredentials represents credentials composed of an App ID, private key, and owner
 type GithubAppCredentials struct {
 	Base       `mapstructure:",squash"`
 	AppID      int    `mapstructure:"app_id"`

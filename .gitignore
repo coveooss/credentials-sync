@@ -14,3 +14,6 @@ credentials-sync
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 coverage.txt
+
+# JetBrains products
+.idea

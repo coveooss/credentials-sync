@@ -83,3 +83,21 @@ func TestUsernamePasswordToJenkinsCred(t *testing.T) {
 	assert.Equal(t, secret.Username, jenkinsSecret.Username)
 	assert.Equal(t, secret.Password, jenkinsSecret.Password)
 }
+
+func TestGithubAppToJenkinsCred(t *testing.T) {
+	secret := credentials.NewGithubAppCredentials()
+	secret.ID = "test-id"
+	secret.Description = "a test description"
+	secret.Owner = "a-user"
+	secret.PrivateKey = "a-key"
+	secret.AppID = 12345
+
+	jenkinsSecretInterface := toJenkinsCredential(secret)
+
+	jenkinsSecret := jenkinsSecretInterface.(*JenkinsGithubAppCredentials)
+	assert.Equal(t, secret.ID, jenkinsSecret.ID)
+	assert.Equal(t, secret.Description, jenkinsSecret.Description)
+	assert.Equal(t, secret.Owner, jenkinsSecret.Owner)
+	assert.Equal(t, secret.PrivateKey, jenkinsSecret.PrivateKey)
+	assert.Equal(t, secret.AppID, jenkinsSecret.AppID)
+}

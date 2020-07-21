@@ -196,26 +196,24 @@ func TestBaseValidateCredentials(t *testing.T) {
 	credWithoutType := &Base{
 		ID: "test",
 	}
-	assert.EqualError(t, credWithoutType.BaseValidate(), "Credentials (test) has no type. This is probably a bug in the software")
+	assert.EqualError(t, credWithoutType.BaseValidate(), "credentials (test) has no type. This is probably a bug in the software")
 
 	credWithoutID := &Base{
 		CredType:    "test",
 		Description: "test2",
 	}
-	assert.EqualError(t, credWithoutID.BaseValidate(), "Credentials ( -> Type: test, Description: test2) has no defined ID")
+	assert.EqualError(t, credWithoutID.BaseValidate(), "credentials ( -> Type: test, Description: test2) has no defined ID")
 }
 
 func TestParseCredentials(t *testing.T) {
 	t.Parallel()
 
-	cases := []struct {
-		name     string
+	cases := map[string]struct {
 		credMaps []map[string]interface{}
 		result   []Credentials
 		wantErr  bool
 	}{
-		{
-			name: "Invalid type",
+		"Invalid type": {
 			credMaps: []map[string]interface{}{
 				{
 					"id":          "stuff",
@@ -227,8 +225,7 @@ func TestParseCredentials(t *testing.T) {
 			result:  nil,
 			wantErr: true,
 		},
-		{
-			name: "Invalid type (not a string)",
+		"Invalid type (not a string)": {
 			credMaps: []map[string]interface{}{
 				{
 					"id":          "stuff",
@@ -240,16 +237,123 @@ func TestParseCredentials(t *testing.T) {
 			result:  nil,
 			wantErr: true,
 		},
+		"Valid aws": {
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        "aws",
+					"access_key":  "AKIAMYFAKEKEY",
+					"secret_key":  "fdjVEsefk4kgjVsdjfew54",
+					"description": "test-desc",
+				},
+			},
+			result: []Credentials{&AmazonWebServicesCredentials{
+				Base: Base{
+					ID:          "stuff",
+					Description: "test-desc",
+					CredType:    "Amazon Web Services",
+				},
+				AccessKey: "AKIAMYFAKEKEY",
+				SecretKey: "fdjVEsefk4kgjVsdjfew54",
+			}},
+			wantErr: false,
+		},
+		"Valid usernamepassword": {
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        "usernamepassword",
+					"username":    "username",
+					"password":    "password",
+					"description": "test-desc",
+				},
+			},
+			result: []Credentials{&UsernamePasswordCredentials{
+				Base: Base{
+					ID:          "stuff",
+					Description: "test-desc",
+					CredType:    "Username/Password",
+				},
+				Username: "username",
+				Password: "password",
+			}},
+			wantErr: false,
+		},
+		"Valid secret": {
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        "secret",
+					"secret":      "secret",
+					"description": "test-desc",
+				},
+			},
+			result: []Credentials{&SecretTextCredentials{
+				Base: Base{
+					ID:          "stuff",
+					Description: "test-desc",
+					CredType:    "Secret text",
+				},
+				Secret: "secret",
+			}},
+			wantErr: false,
+		},
+		"Valid ssh": {
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        "ssh",
+					"username":    "user",
+					"passphrase":  "pass",
+					"private_key": "private",
+					"description": "test-desc",
+				},
+			},
+			result: []Credentials{&SSHCredentials{
+				Base: Base{
+					ID:          "stuff",
+					Description: "test-desc",
+					CredType:    "SSH",
+				},
+				Username:   "user",
+				Passphrase: "pass",
+				PrivateKey: "private",
+			}},
+			wantErr: false,
+		},
+		"Valid github app": {
+			credMaps: []map[string]interface{}{
+				{
+					"id":          "stuff",
+					"type":        "github_app",
+					"app_id":      12345,
+					"private_key": "private",
+					"owner":       "owner",
+					"description": "test-desc",
+				},
+			},
+			result: []Credentials{&GithubAppCredentials{
+				Base: Base{
+					ID:          "stuff",
+					Description: "test-desc",
+					CredType:    "Github App",
+				},
+				AppID:      12345,
+				PrivateKey: "private",
+				Owner:      "owner",
+			}},
+			wantErr: false,
+		},
 	}
 
-	for _, tt := range cases {
-		t.Run(tt.name, func(t *testing.T) {
+	for name, tt := range cases {
+		t.Run(name, func(t *testing.T) {
 			gottenCreds, err := ParseCredentials(tt.credMaps)
 
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			assert.Equal(t, tt.result, gottenCreds)
 		})

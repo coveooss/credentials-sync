@@ -1,7 +1,6 @@
 package credentials
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/hashicorp/go-multierror"
@@ -52,10 +51,10 @@ func (credBase *Base) BaseToString() string {
 // BaseValidate verifies that the credentials fields common to all types of credentials contain valid values
 func (credBase *Base) BaseValidate() error {
 	if credBase.ID == "" {
-		return fmt.Errorf("Credentials (%s) has no defined ID", credBase.BaseToString())
+		return fmt.Errorf("credentials (%s) has no defined ID", credBase.BaseToString())
 	}
 	if credBase.CredType == "" {
-		return fmt.Errorf("Credentials (%s) has no type. This is probably a bug in the software", credBase.ID)
+		return fmt.Errorf("credentials (%s) has no type. This is probably a bug in the software", credBase.ID)
 	}
 	return nil
 }
@@ -120,7 +119,7 @@ func (credBase *Base) ShouldSync(targetName string, targetTags map[string]string
 // ParseCredentials transforms a list of maps into a list of Credentials
 // The credentials type is determined by the `type` attribute
 func ParseCredentials(credentialsMaps []map[string]interface{}) ([]Credentials, error) {
-	credentialsList := []Credentials{}
+	credentialsList := make([]Credentials, 0)
 	for _, credentialsMap := range credentialsMaps {
 		newCredentials, err := ParseSingleCredentials(credentialsMap)
 		if err != nil {
@@ -136,12 +135,13 @@ func ParseCredentials(credentialsMaps []map[string]interface{}) ([]Credentials, 
 func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials, error) {
 	var credentialsType string
 	var credentials Credentials
+	var id = credentialsMap["id"]
 	if value, ok := credentialsMap["type"]; ok {
 		if credentialsType, ok = value.(string); !ok {
-			return nil, errors.New("Credentials type is not a string")
+			return nil, fmt.Errorf("entry %s: credentials type '%v' is not a string", id, credentialsType)
 		}
 	} else {
-		return nil, errors.New("Unable to find the credentials type")
+		return nil, fmt.Errorf("entry %s: unable to find the credentials type %s", id, credentialsType)
 	}
 
 	switch credentialsType {
@@ -153,10 +153,15 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 		credentials = NewSecretText()
 	case "ssh":
 		credentials = NewSSHCredentials()
+	case "github_app":
+		credentials = NewGithubAppCredentials()
 	default:
-		return nil, errors.New("Unknown credentials type")
+		return nil, fmt.Errorf("entry %s: unknown credentials type: %s", id, credentialsType)
 	}
-	mapstructure.Decode(credentialsMap, credentials)
+	err := mapstructure.Decode(credentialsMap, credentials)
+	if err != nil {
+		return nil, fmt.Errorf("entry %s: invalid credentials data: %v", id, err)
+	}
 	var validationErrors error
 	if err := credentials.BaseValidate(); err != nil {
 		validationErrors = multierror.Append(validationErrors, err)
@@ -165,7 +170,7 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 		validationErrors = multierror.Append(validationErrors, err)
 	}
 	if validationErrors != nil {
-		return nil, fmt.Errorf("The following credentials failed to validate: %v -> %v", credentials.ToString(false), validationErrors)
+		return nil, fmt.Errorf("the following credentials failed to validate: %v -> %v", credentials.ToString(false), validationErrors)
 	}
 	return credentials, nil
 }

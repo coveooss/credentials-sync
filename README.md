@@ -100,7 +100,7 @@ my_other_cred:
 ```
 
 ## Supported types of source credentials
-Credentials are defined as JSON, here are the supported types of source credentials with definition examples:
+Credentials are defined as JSON or YAML, here are the supported types of source credentials with definition examples:
  - Secret text
  - Username/Password
  - AWS IAM

@@ -20,13 +20,17 @@ func NewGithubAppCredentials() *GithubAppCredentials {
 }
 
 // ToString prints out the content of a GithubAppCredentials struct.
-// showSensitive bool has not effect. It is provided to satisfy the interface.
-func (cred *GithubAppCredentials) ToString(_ bool) string {
+func (cred *GithubAppCredentials) ToString(showSensitive bool) string {
+	privateKeyText := "********"
+	if showSensitive {
+		privateKeyText = cred.PrivateKey
+	}
+
 	appIDOwner := fmt.Sprintf("%d", cred.AppID)
 	if len(cred.Owner) > 0 {
 		appIDOwner = fmt.Sprintf("%s(%s)", appIDOwner, cred.Owner)
 	}
-	return fmt.Sprintf("%s - %s", cred.BaseToString(), appIDOwner)
+	return fmt.Sprintf("%s - %s:%s", cred.BaseToString(), appIDOwner, privateKeyText)
 }
 
 // Validate verifies that the credentials is valid.

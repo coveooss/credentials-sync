@@ -11,11 +11,14 @@ func TestGithubAppCredentials(t *testing.T) {
 		givenID            string
 		givenAppID         int
 		givenOwner         string
+		givenPrivate       string
 		givenShowSensitive bool
 		expectString       string
 	}{
-		"without owner": {givenID: "test", givenAppID: 1, givenOwner: "", givenShowSensitive: false, expectString: "test -> Type: Github App - 1"},
-		"with owner":    {givenID: "test", givenAppID: 2, givenOwner: "owner", givenShowSensitive: false, expectString: "test -> Type: Github App - 2(owner)"},
+		"without owner":               {givenID: "test", givenAppID: 1, givenOwner: "", givenPrivate: "private", givenShowSensitive: false, expectString: "test -> Type: Github App - 1:********"},
+		"with owner":                  {givenID: "test", givenAppID: 2, givenOwner: "owner", givenPrivate: "private", givenShowSensitive: false, expectString: "test -> Type: Github App - 2(owner):********"},
+		"without owner showSensitive": {givenID: "test", givenAppID: 1, givenOwner: "", givenPrivate: "private", givenShowSensitive: true, expectString: "test -> Type: Github App - 1:private"},
+		"with owner showSensitive":    {givenID: "test", givenAppID: 2, givenOwner: "owner", givenPrivate: "private", givenShowSensitive: true, expectString: "test -> Type: Github App - 2(owner):private"},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
@@ -23,6 +26,7 @@ func TestGithubAppCredentials(t *testing.T) {
 			cred.ID = test.givenID
 			cred.AppID = test.givenAppID
 			cred.Owner = test.givenOwner
+			cred.PrivateKey = test.givenPrivate
 			assert.Equal(t, test.expectString, cred.ToString(test.givenShowSensitive))
 		})
 	}

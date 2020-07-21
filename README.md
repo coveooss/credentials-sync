@@ -3,12 +3,16 @@
 [![codecov](https://codecov.io/gh/coveooss/credentials-sync/branch/master/graph/badge.svg)](https://codecov.io/gh/coveooss/credentials-sync)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coveooss/credentials-sync)](https://goreportcard.com/report/github.com/coveooss/credentials-sync)
 
-Sync credentials from various sources to various targets. It currently only supports Jenkins, but LastPass is planned because that is what we use. However, we are open to supporting more targets.
+Sync credentials from various sources to various targets.  Source credentials are defined and stored in standardized
+formats, and are converted to the target's format upon sync.
+
+The supported sources and targets are listed below.  We are open to supporting more targets.
 
 What's the point?
-1. Easier credentials rotations. Rotating credentials manually is simply not an option when credentials rotations are done too often
-2. Uses a push-model instead of a pull-model which means that you can put your credentials in a secure environment to which targets don't have access, targets may have varying degrees of security (prod vs dev)
-3. Decouples your credentials and the systems which use these credentials. Standardized credentials format for all targets
+1. Easier credentials rotations. Rotating credentials manually is simply not an option when credentials rotations are done too often.
+2. Uses a push-model instead of a pull-model which means that you can put your credentials in a secure environment to
+   which targets don't have access, targets may have varying degrees of security (prod vs dev).
+3. Decouples your credentials and the systems which use these credentials. Standardized credentials format for all targets.
 
 ## Installation
 
@@ -25,27 +29,30 @@ What's the point?
 credentials-sync sync -c config.yml
 ```
 
+Run without any argument for the full list of available commands.
+
 ## Logging
 
 The log level can be set with either:
   - The `--log-level` option
   - The `SYNC_LOG_LEVEL` env variable
 
-Valid levels are `debug`, `info`, `warning` and `error`
+Valid levels are `debug`, `info`, `warning` and `error`.
 
 ![example](https://raw.githubusercontent.com/coveooss/credentials-sync/master/example.png)
 
 ## Configuration file
 A configuration file must be given to the application. Its path can either be a local path or a S3 path
-The path can either be passed as a parameter (`-c/--config`) or as an environment variable (`SYNC_CONFIG`)  
+The path can either be passed as a parameter (`-c/--config`) or as an environment variable (`SYNC_CONFIG`).
 
-A configuration file contains [sources](#supported-sources) which contain [credentials](#supported-types-of-credentials). It also defines targets to which these credentials will be synced
+A configuration file contains [sources](#supported-sources) which contain [credentials](#supported-types-of-source-credentials).
+It also defines targets to which these credentials will be synced.
 
 Here is the accepted format:
 ```yaml
 sources:
   local:
-    - path: /home/jdoe/path/to/file.yaml
+    - file: /home/jdoe/path/to/file.yaml
   aws_s3:
     - bucket: name
       key: path/to/file.yaml
@@ -66,9 +73,10 @@ targets:
 
 ## Supported sources
 Here are the supported sources:
- - Local (Single file)
- - AWS S3 (Single object)
- - AWS SecretsManager (Single secret or a secret prefix)
+
+ - **local**: Local (Single file)
+ - **aws_s3**: AWS S3 (Single object)
+ - **aws_secretsmanager**: AWS SecretsManager (Single secret or a secret prefix)
 
 The source's value must either be a list or a map in the following formats (JSON or YAML):
 ```yaml
@@ -91,9 +99,14 @@ my_other_cred:
   ...
 ```
 
-## Supported types of credentials
-Credentials are defined as JSON, here are the supported types of credentials with definition examples:
+## Supported types of source credentials
+Credentials are defined as JSON, here are the supported types of source credentials with definition examples:
  - Secret text
+ - Username/Password
+ - AWS IAM
+ - SSH Key
+ - [Github App](https://developer.github.com/apps/about-apps/#about-github-apps)
+
 ```yaml
 secret_text:
   description: A secret text cred is only composed of a secret
@@ -133,6 +146,37 @@ ssh_key:
     i11Ol956OqlmjyzpqmyYFCBzzhv7uLlI31/0MZfjQQJUa1JeQCL+Usjj+3GICDlu
     Yi7xX7n5GW4h7w43KXH1HHV+J1BE3w53uuzm+cATnEWc/raNopeDontEvenTryIt
     -----END RSA PRIVATE KEY-----
+```
+
+ - github App credentials
+```yaml
+github_app:
+  description:  
+  type: github_app
+  app_id: The github app ID.  It can be found on github in the app's settings, on the General page in the About section.
+  private_key: |
+    The private key with which to authenticate to github.  It must be in PKCS#8 format. 
+    Github gives it in PKCS#1 format.  Convert it to PKCS#8 with:
+    `openssl pkcs8 -topk8 -inform PEM -outform PEM -in current-key.pem -out new-key.pem -nocrypt`
+  owner: The organisation or user that this app is to be used for.  Only required if this app is installed to multiple
+         organisations.
+```
+
+## Supported targets
+
+Here are the supported targets:
+
+- **jenkins**: Jenkins global credentials
+
+### Jenkins target
+
+The jenkins target supports the following configuration parameters:
+
+```yaml
+  jenkins:
+    - name: Name of this target
+      url: URL to the Jenkins server
+      credentials_id: The ID of the global credential to modify in Jenkins 
 ```
 
 ## Other features

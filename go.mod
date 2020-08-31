@@ -3,7 +3,7 @@ module github.com/coveooss/credentials-sync
 go 1.12
 
 require (
-	github.com/aws/aws-sdk-go v1.30.7
+	github.com/aws/aws-sdk-go v1.34.13
 	github.com/bndr/gojenkins v1.0.1
 	github.com/golang/mock v1.4.3
 	github.com/hashicorp/go-multierror v1.1.0

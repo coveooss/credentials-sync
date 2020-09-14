@@ -1,5 +1,6 @@
 # credentials-sync
-[![Build Status](https://travis-ci.org/coveooss/credentials-sync.svg?branch=master)](https://travis-ci.org/coveooss/credentials-sync)
+
+![Build](https://github.com/coveooss/credentials-sync/workflows/Build/badge.svg?branch=master)
 [![codecov](https://codecov.io/gh/coveooss/credentials-sync/branch/master/graph/badge.svg)](https://codecov.io/gh/coveooss/credentials-sync)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coveooss/credentials-sync)](https://goreportcard.com/report/github.com/coveooss/credentials-sync)
 
@@ -9,6 +10,7 @@ formats, and are converted to the target's format upon sync.
 The supported sources and targets are listed below.  We are open to supporting more targets.
 
 What's the point?
+
 1. Easier credentials rotations. Rotating credentials manually is simply not an option when credentials rotations are done too often.
 2. Uses a push-model instead of a pull-model which means that you can put your credentials in a secure environment to
    which targets don't have access, targets may have varying degrees of security (prod vs dev).
@@ -16,14 +18,14 @@ What's the point?
 
 ## Installation
 
- - Go to https://github.com/coveooss/credentials-sync/releases
- - Download the file appropriate for your system
- - Unzip it
+- Go to <https://github.com/coveooss/credentials-sync/releases>
+- Download the file appropriate for your system
+- Unzip it
 
 ## Usage
 
- - Write a config file, see [format here](#configuration-file)
- - Run the sync command
+- Write a config file, see [format here](#configuration-file)
+- Run the sync command
 
 ```bash
 credentials-sync sync -c config.yml
@@ -34,14 +36,16 @@ Run without any argument for the full list of available commands.
 ## Logging
 
 The log level can be set with either:
-  - The `--log-level` option
-  - The `SYNC_LOG_LEVEL` env variable
+
+- The `--log-level` option
+- The `SYNC_LOG_LEVEL` env variable
 
 Valid levels are `debug`, `info`, `warning` and `error`.
 
 ![example](https://raw.githubusercontent.com/coveooss/credentials-sync/master/example.png)
 
 ## Configuration file
+
 A configuration file must be given to the application. Its path can either be a local path or a S3 path
 The path can either be passed as a parameter (`-c/--config`) or as an environment variable (`SYNC_CONFIG`).
 
@@ -49,6 +53,7 @@ A configuration file contains [sources](#supported-sources) which contain [crede
 It also defines targets to which these credentials will be synced.
 
 Here is the accepted format:
+
 ```yaml
 sources:
   local:
@@ -72,13 +77,15 @@ targets:
 ```
 
 ## Supported sources
+
 Here are the supported sources:
 
- - **local**: Local (Single file)
- - **aws_s3**: AWS S3 (Single object)
- - **aws_secretsmanager**: AWS SecretsManager (Single secret or a secret prefix)
+- **local**: Local (Single file)
+- **aws_s3**: AWS S3 (Single object)
+- **aws_secretsmanager**: AWS SecretsManager (Single secret or a secret prefix)
 
 The source's value must either be a list or a map in the following formats (JSON or YAML):
+
 ```yaml
 # list
 - id: my_cred
@@ -100,12 +107,14 @@ my_other_cred:
 ```
 
 ## Supported types of source credentials
+
 Credentials are defined as JSON or YAML, here are the supported types of source credentials with definition examples:
- - Secret text
- - Username/Password
- - AWS IAM
- - SSH Key
- - [Github App](https://developer.github.com/apps/about-apps/#about-github-apps)
+
+- Secret text
+- Username/Password
+- AWS IAM
+- SSH Key
+- [Github App](https://developer.github.com/apps/about-apps/#about-github-apps)
 
 ```yaml
 secret_text:
@@ -113,7 +122,9 @@ secret_text:
   type: secret
   secret: xoxb-a-slack-token
 ```
- - Username password
+
+- Username password
+
 ```yaml
 username_password:
   description: A username:password cred is composed of two values, a username and a password
@@ -121,7 +132,9 @@ username_password:
   username: jdoe
   password: hunter42
 ```
- - AWS IAM credentials
+
+- AWS IAM credentials
+
 ```yaml
 aws_iam:
   description: IAM creds are composed of an access key, a secret access key and optionally a role to assume
@@ -130,7 +143,9 @@ aws_iam:
   secret_key: fdjVEsefk4kgjVsdjfew54
   role_arn: arn:aws:iam::123456789012:role/S3Access
 ```
- - SSH credentials
+
+- SSH credentials
+
 ```yaml
 ssh_key:
   description: An SSH key is composed of a private key, a username and optionally, a passphrase
@@ -148,14 +163,15 @@ ssh_key:
     -----END RSA PRIVATE KEY-----
 ```
 
- - github App credentials
+- github App credentials
+
 ```yaml
 github_app:
   description:  
   type: github_app
   app_id: The github app ID.  It can be found on github in the app's settings, on the General page in the About section.
   private_key: |
-    The private key with which to authenticate to github.  It must be in PKCS#8 format. 
+    The private key with which to authenticate to github.  It must be in PKCS#8 format.
     Github gives it in PKCS#1 format.  Convert it to PKCS#8 with:
     `openssl pkcs8 -topk8 -inform PEM -outform PEM -in current-key.pem -out new-key.pem -nocrypt`
   owner: The organisation or user that this app is to be used for.  Only required if this app is installed to multiple
@@ -176,13 +192,15 @@ The jenkins target supports the following configuration parameters:
   jenkins:
     - name: Name of this target
       url: URL to the Jenkins server
-      credentials_id: The ID of the global credential to modify in Jenkins 
+      credentials_id: The ID of the global credential to modify in Jenkins
 ```
 
 ## Other features
 
 ### Unsynced credentials
+
 Since credentials are also used for authentication, you may wish to not sync them:
+
 ```yaml
 toolsjenkins:
   description: Login credentials for jenkins
@@ -193,9 +211,11 @@ toolsjenkins:
 ```
 
 ### Target matching
+
 Sometimes, certain credentials should only be synced to certain targets. There are two ways to make sure this happens:
 
 1. Matching on target's name
+
 ```yaml
 secret_text:
   description: A secret text cred is only composed of a secret
@@ -203,7 +223,9 @@ secret_text:
   secret: xoxb-a-slack-token
   target: toolsjenkins # This cred will only be synced to the toolsjenkins target
 ```
+
 2. Matching on target tags
+
 ```yaml
 # In config file
 targets:
@@ -229,20 +251,23 @@ secret_text:
 
 ## Using the docker image
 
-For every version, a docker image is published here: https://hub.docker.com/r/coveo/credentials-sync  
+For every version, a docker image is published here: <https://hub.docker.com/r/coveo/credentials-sync>  
 The only parameter needed for the credentials sync is the configuration file (You can set its location with `SYNC_CONFIG` env variable)  
 This allows you to run this as a cron job in AWS Fargate or Kubernetes, for example
 
 ## Roadmap
+
 - Incremental runs (keep a state file and only update credentials that have been modified at the source level. This would have to be optional because full runs will still be need to sync back credentials that have been modified at the target level)
 - LastPass target
 - Terraform state file source
 - SSM Parameter store source (not in the regular JSON format)
 
 ## Contributing
+
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
 
 ## License
+
 [MIT](https://choosealicense.com/licenses/mit/)

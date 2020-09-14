@@ -31,22 +31,25 @@ jobs:
           bash ./test.sh
           bash <(curl -s https://codecov.io/bash)
 
-      - name: Docker Login
-        run: |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p '${{ secrets.DOCKER_PASSWORD }}'
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
 
       - name: Build Latest
         if: github.ref == 'refs/heads/master'
         run: |
-          docker build . -t coveo/credentials-sync:latest
-          docker push coveo/credentials-sync:latest
+          docker build . -t ghcr.io/coveooss/credentials-sync:latest
+          docker push ghcr.io/coveooss/credentials-sync:latest
 
       - name: Build Tag
         if: github.ref != 'refs/heads/master'
         run: |
           export tag=$(cut -d'/' -f3 <<<'${{ github.ref }}')
-          docker build . -t coveo/credentials-sync:$tag
-          docker push coveo/credentials-sync:$tag
+          docker build . -t ghcr.io/coveooss/credentials-sync:$tag
+          docker push ghcr.io/coveooss/credentials-sync:$tag
 
       - name: Push release
         if: github.ref != 'refs/heads/master'

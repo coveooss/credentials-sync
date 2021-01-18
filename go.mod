@@ -7,7 +7,7 @@ require (
 	github.com/bndr/gojenkins v1.0.1
 	github.com/golang/mock v1.4.4
 	github.com/hashicorp/go-multierror v1.1.0
-	github.com/mitchellh/mapstructure v1.4.0
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/viper v1.7.1

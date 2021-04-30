@@ -1,7 +1,6 @@
 # credentials-sync
 
 ![Build](https://github.com/coveooss/credentials-sync/workflows/Build/badge.svg?branch=master)
-[![codecov](https://codecov.io/gh/coveooss/credentials-sync/branch/master/graph/badge.svg)](https://codecov.io/gh/coveooss/credentials-sync)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coveooss/credentials-sync)](https://goreportcard.com/report/github.com/coveooss/credentials-sync)
 
 Sync credentials from various sources to various targets.  Source credentials are defined and stored in standardized

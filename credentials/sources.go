@@ -99,11 +99,23 @@ func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
 	)
 
 	methods := []func(bytes []byte) ([]map[string]interface{}, error){tryReadingList, tryReadingMapOfCredentials, tryReadingSingleCredential}
+	var success = false
+	var errors []error
 	for _, method := range methods {
 		if credentialsList, err = method(byteArray); err == nil {
+			success = true
 			return ParseCredentials(credentialsList)
 		}
-		log.Debug(err)
+		errors = append(errors, err)
+	}
+
+	if !success {
+		log.Warning("Failed to get credential from data using all known formats (details below)")
+		for _, err := range errors {
+			if err != nil {
+				log.Warning(err)
+			}
+		}
 	}
 
 	return nil, fmt.Errorf("Failed to parse %v. See debug for more info", string(byteArray))

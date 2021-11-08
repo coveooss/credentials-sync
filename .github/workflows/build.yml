@@ -43,20 +43,20 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build Latest
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         run: |
           docker build . -t ghcr.io/coveooss/credentials-sync:latest
           docker push ghcr.io/coveooss/credentials-sync:latest
 
       - name: Build Tag
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         run: |
           export tag=$(cut -d'/' -f3 <<<'${{ github.ref }}')
           docker build . -t ghcr.io/coveooss/credentials-sync:$tag
           docker push ghcr.io/coveooss/credentials-sync:$tag
 
       - name: Push release
-        if: github.ref != 'refs/heads/master'
+        if: github.ref != 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

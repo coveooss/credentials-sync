@@ -1,6 +1,6 @@
 # credentials-sync
 
-![Build](https://github.com/coveooss/credentials-sync/workflows/Build/badge.svg?branch=master)
+![Build](https://github.com/coveooss/credentials-sync/workflows/Build/badge.svg?branch=main)
 [![Go Report Card](https://goreportcard.com/badge/github.com/coveooss/credentials-sync)](https://goreportcard.com/report/github.com/coveooss/credentials-sync)
 
 Sync credentials from various sources to various targets.  Source credentials are defined and stored in standardized
@@ -41,7 +41,7 @@ The log level can be set with either:
 
 Valid levels are `debug`, `info`, `warning` and `error`.
 
-![example](https://raw.githubusercontent.com/coveooss/credentials-sync/master/example.png)
+![example](https://raw.githubusercontent.com/coveooss/credentials-sync/main/example.png)
 
 ## Configuration file
 

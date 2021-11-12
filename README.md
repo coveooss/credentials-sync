@@ -43,6 +43,13 @@ Valid levels are `debug`, `info`, `warning` and `error`.
 
 ![example](https://raw.githubusercontent.com/coveooss/credentials-sync/main/example.png)
 
+## Monitoring with Sentry
+
+To send errors to Sentry, set the following environment variables:
+- `SENTRY_DSN`
+- `SENTRY_RELEASE`
+- `SENTRY_ENVIRONMENT`
+
 ## Configuration file
 
 A configuration file must be given to the application. Its path can either be a local path or a S3 path

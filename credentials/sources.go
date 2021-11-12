@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/coveooss/credentials-sync/logger"
 	"github.com/hashicorp/go-multierror"
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/yaml.v2"
 )
 
@@ -110,10 +110,10 @@ func getCredentialsFromBytes(byteArray []byte) ([]Credentials, error) {
 	}
 
 	if !success {
-		log.Warning("Failed to get credential from data using all known formats (details below)")
+		logger.Log.Warning("Failed to get credential from data using all known formats (details below)")
 		for _, err := range errors {
 			if err != nil {
-				log.Warning(err)
+				logger.Log.Warning(err)
 			}
 		}
 	}

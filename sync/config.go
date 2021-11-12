@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/coveooss/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/logger"
 	"github.com/coveooss/credentials-sync/targets"
-	log "github.com/sirupsen/logrus"
 )
 
 // Configuration represents the parsed configuration file given to the application
@@ -56,7 +56,7 @@ func (config *Configuration) Sync() error {
 			if config.StopOnError {
 				return err
 			}
-			log.Error(err)
+			logger.Log.Error(err)
 		} else {
 			validTargets = append(validTargets, initTarget.(targets.Target))
 		}
@@ -93,7 +93,7 @@ func (config *Configuration) initTarget(target targets.Target, creds []credentia
 
 	err := target.Initialize(creds)
 	if err == nil {
-		log.Infof("Connected to %s", target.ToString())
+		logger.Log.Infof("Connected to %s", target.ToString())
 		channelValue = target
 	} else {
 		channelValue = fmt.Errorf("Target `%s` has failed initialization: %v", target.GetName(), err)
@@ -121,5 +121,5 @@ func (config *Configuration) syncCredentials(target targets.Target, credentialsL
 		return
 	}
 
-	log.Infof("Finished sync to %s", target.GetName())
+	logger.Log.Infof("Finished sync to %s", target.GetName())
 }

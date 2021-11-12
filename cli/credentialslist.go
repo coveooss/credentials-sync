@@ -3,7 +3,8 @@ package cli
 import (
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
+	"github.com/coveooss/credentials-sync/logger"
+
 	"github.com/spf13/cobra"
 )
 
@@ -16,7 +17,7 @@ var listCredentialsCmd = &cobra.Command{
 	Short: "Resolves and lists all configured credentials",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := configuration.Sources.ValidateConfiguration(); err != nil {
-			log.Fatalf("The sources section of the config file is invalid: %v", err)
+			logger.Log.Fatalf("The sources section of the config file is invalid: %v", err)
 		}
 		allCredentials, err := configuration.Sources.Credentials()
 		if err != nil {

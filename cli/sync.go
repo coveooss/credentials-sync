@@ -1,7 +1,7 @@
 package cli
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/coveooss/credentials-sync/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -10,13 +10,13 @@ var syncCmd = &cobra.Command{
 	Short: "Fetches credentials and syncs them to targets",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := configuration.Sources.ValidateConfiguration(); err != nil {
-			log.Fatalf("The sources section of the config file is invalid: %v", err)
+			logger.Log.Fatalf("The sources section of the config file is invalid: %v", err)
 		}
 		if err := configuration.Targets.ValidateConfiguration(); err != nil {
-			log.Fatalf("The targets section of the config file is invalid: %v", err)
+			logger.Log.Fatalf("The targets section of the config file is invalid: %v", err)
 		}
 		if err := configuration.Sync(); err != nil {
-			log.Fatalf("The synchronization process failed: %v", err)
+			logger.Log.Fatalf("The synchronization process failed: %v", err)
 		}
 	},
 }

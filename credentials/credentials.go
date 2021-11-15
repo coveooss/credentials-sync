@@ -3,9 +3,9 @@ package credentials
 import (
 	"fmt"
 
+	"github.com/coveooss/credentials-sync/logger"
 	"github.com/hashicorp/go-multierror"
 	"github.com/mitchellh/mapstructure"
-	log "github.com/sirupsen/logrus"
 )
 
 // Credentials defines the methods that can be called by all types of credentials
@@ -106,7 +106,7 @@ func (credBase *Base) ShouldSync(targetName string, targetTags map[string]string
 						return true
 					}
 				} else {
-					log.Warningf("%s ignored. Its value should either be a string or a list of string", key)
+					logger.Log.Warningf("%s ignored. Its value should either be a string or a list of string", key)
 				}
 			}
 		}

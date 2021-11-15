@@ -2,8 +2,8 @@ package cli
 
 import (
 	"fmt"
+	"github.com/coveooss/credentials-sync/logger"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +12,7 @@ var listTargetsCmd = &cobra.Command{
 	Short: "Resolves and lists all configured targets",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := configuration.Targets.ValidateConfiguration(); err != nil {
-			log.Fatalf("The targets section of the config file is invalid: %v", err)
+			logger.Log.Fatalf("The targets section of the config file is invalid: %v", err)
 		}
 		for _, target := range configuration.Targets.AllTargets() {
 			fmt.Println(target.ToString())

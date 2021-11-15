@@ -4,21 +4,21 @@ import (
 	"fmt"
 
 	"github.com/coveooss/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/logger"
 	"github.com/coveooss/credentials-sync/targets"
-	log "github.com/sirupsen/logrus"
 )
 
 // DeleteListOfCredentials deletes the configured list of credentials from the given target
 func (config *Configuration) DeleteListOfCredentials(target targets.Target) error {
 	for _, id := range config.CredentialsToDelete {
 		if targets.HasCredential(target, id) {
-			log.Infof("[%s] Deleting %s", target.GetName(), id)
+			logger.Log.Infof("[%s] Deleting %s", target.GetName(), id)
 			if err := target.DeleteCredentials(id); err != nil {
 				err = fmt.Errorf("Failed to delete credentials with ID %s from %s: %v", id, target.GetName(), err)
 				if config.StopOnError {
 					return err
 				}
-				log.Error(err)
+				logger.Log.Error(err)
 			}
 		}
 	}
@@ -38,33 +38,33 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 	}
 
 	for _, credentials := range listOfCredentials {
-		log.Infof("[%s] Syncing %s", target.GetName(), credentials.GetTargetID())
+		logger.Log.Infof("[%s] Syncing %s", target.GetName(), credentials.GetTargetID())
 		if err := target.UpdateCredentials(credentials); err != nil {
 			err = fmt.Errorf("Failed to send credentials with ID %s to %s: %v", credentials.GetTargetID(), target.GetName(), err)
 			if config.StopOnError {
 				return err
 			}
-			log.Error(err)
+			logger.Log.Error(err)
 		}
 	}
 
 	if target.ShouldDeleteUnsynced() {
-		log.Debugf("Deleting unsynced credentials from %v", target.GetName())
+		logger.Log.Debugf("Deleting unsynced credentials from %v", target.GetName())
 	}
 
 	for _, existingID := range target.GetExistingCredentials() {
 		if !isSynced(existingID) {
 			if target.ShouldDeleteUnsynced() {
-				log.Infof("[%s] Deleting %s", target.GetName(), existingID)
+				logger.Log.Infof("[%s] Deleting %s", target.GetName(), existingID)
 				if err := target.DeleteCredentials(existingID); err != nil {
 					err = fmt.Errorf("Failed to delete credentials with ID %s from %s: %v", existingID, target.GetName(), err)
 					if config.StopOnError {
 						return err
 					}
-					log.Error(err)
+					logger.Log.Error(err)
 				}
 			} else {
-				log.Infof("[%s] %s is unsynced. Not modifying it", target.GetName(), existingID)
+				logger.Log.Infof("[%s] %s is unsynced. Not modifying it", target.GetName(), existingID)
 			}
 		}
 	}

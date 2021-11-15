@@ -12,13 +12,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/mitchellh/mapstructure"
+	"github.com/sirupsen/logrus"
 
 	"gopkg.in/yaml.v2"
 
 	"github.com/coveooss/credentials-sync/credentials"
+	"github.com/coveooss/credentials-sync/logger"
 	"github.com/coveooss/credentials-sync/sync"
 	"github.com/coveooss/credentials-sync/targets"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -41,11 +42,11 @@ var rootCmd = &cobra.Command{
 			fileContent       []byte
 		)
 
-		level, err := log.ParseLevel(viper.GetString("log-level"))
+		level, err := logrus.ParseLevel(viper.GetString("log-level"))
 		if err != nil {
 			return fmt.Errorf("Invalid log level: %s", err)
 		}
-		log.SetLevel(level)
+		logger.Log.SetLevel(level)
 
 		if configurationFile == "" {
 			return fmt.Errorf("A configuration file must be defined")
@@ -109,7 +110,7 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	log.SetFormatter(&log.TextFormatter{FullTimestamp: true})
+	logger.Log.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
 
 	viper.AutomaticEnv()
 	viper.SetEnvPrefix("sync")
@@ -117,7 +118,7 @@ func init() {
 	rootCmd.PersistentFlags().StringP("config", "c", "", "configuration file")
 	viper.BindPFlag("config", rootCmd.PersistentFlags().Lookup("config"))
 
-	rootCmd.PersistentFlags().StringP("log-level", "l", log.InfoLevel.String(), `"debug", "info", "warning" or "error"`)
+	rootCmd.PersistentFlags().StringP("log-level", "l", logrus.InfoLevel.String(), `"debug", "info", "warning" or "error"`)
 	viper.BindPFlag("log-level", rootCmd.PersistentFlags().Lookup("log-level"))
 
 	initListCredentials()
@@ -129,6 +130,7 @@ func Execute(commit string, date string, version string) {
 	rootCmd.Version = fmt.Sprintf("%s %s (%s)", version, commit, date)
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
+		logger.Log.Error(err)
 		os.Exit(1)
 	}
 }

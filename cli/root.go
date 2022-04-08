@@ -130,6 +130,6 @@ func init() {
 func Execute(commit string, date string, version string) {
 	rootCmd.Version = fmt.Sprintf("%s %s (%s)", version, commit, date)
 	if err := rootCmd.Execute(); err != nil {
-		logger.Log.Fatalf("Fatal: Credential sync failed: %v", err)
+		logger.Log.Fatal("Credential sync failed, the errors encountered are listed above.")
 	}
 }

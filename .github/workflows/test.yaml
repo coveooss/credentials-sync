@@ -2,7 +2,7 @@ name: Run Tests
 on:
   # https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request
   pull_request:
-    types: [edited, opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
 
 jobs:
   build:

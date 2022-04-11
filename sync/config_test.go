@@ -75,7 +75,7 @@ func TestSyncCredentialsAndDeleteUnsyncedWithContinueOnError(t *testing.T) {
 	targets[1].EXPECT().DeleteCredentials("bad").Return(fmt.Errorf("Dummy error")).Times(2)
 	targets[1].EXPECT().DeleteCredentials("bad2").Times(2)
 
-	assert.Nil(t, config.Sync())
+	assert.EqualError(t, config.Sync(), "5 errors occurred:\n\t* Target `target-0` has failed initialization: Dummy error\n\t* Failed to send credentials with ID test1 to target-1: Dummy error\n\t* Failed to delete credentials with ID test3 from target-1: Dummy error\n\t* Failed to delete credentials with ID bad from target-1: Dummy error\n\t* Failed to delete credentials with ID bad from target-1: Dummy error\n\n")
 }
 
 func TestSyncCredentialsFailOnInitialize(t *testing.T) {
@@ -114,7 +114,7 @@ func TestSyncCredentialsFailOnCredentialsUpdate(t *testing.T) {
 	targets[0].EXPECT().UpdateCredentials(gomock.Any()).Return(nil).AnyTimes()
 	targets[1].EXPECT().UpdateCredentials(cred1).Return(fmt.Errorf("Dummy error2")).Times(1)
 
-	assert.EqualError(t, config.Sync(), "Failed to send credentials with ID test1 to target-1: Dummy error2")
+	assert.EqualError(t, config.Sync(), "1 error occurred:\n\t* Failed to send credentials with ID test1 to target-1: Dummy error2\n\n")
 }
 
 func TestSyncCredentialsFailOnsDeleteUnsyncedCredentials(t *testing.T) {
@@ -140,7 +140,7 @@ func TestSyncCredentialsFailOnsDeleteUnsyncedCredentials(t *testing.T) {
 	targets[0].EXPECT().DeleteCredentials("test3").Return(fmt.Errorf("Dummy error3")).Times(1)
 	targets[1].EXPECT().DeleteCredentials(gomock.Any()).Return(nil).AnyTimes()
 
-	assert.EqualError(t, config.Sync(), "Failed to delete credentials with ID test3 from target-0: Dummy error3")
+	assert.EqualError(t, config.Sync(), "1 error occurred:\n\t* Failed to delete credentials with ID test3 from target-0: Dummy error3\n\n")
 }
 
 func TestSyncCredentialsFailOnsDeleteListedCredentials(t *testing.T) {
@@ -158,5 +158,5 @@ func TestSyncCredentialsFailOnsDeleteListedCredentials(t *testing.T) {
 	targets[0].EXPECT().DeleteCredentials(gomock.Any()).Return(nil).AnyTimes()
 	targets[1].EXPECT().DeleteCredentials("bad2").Return(fmt.Errorf("Dummy error4")).Times(1)
 
-	assert.EqualError(t, config.Sync(), "Failed to delete credentials with ID bad2 from target-1: Dummy error4")
+	assert.EqualError(t, config.Sync(), "1 error occurred:\n\t* Failed to delete credentials with ID bad2 from target-1: Dummy error4\n\n")
 }

@@ -11,8 +11,9 @@ import (
 
 // DeleteListOfCredentials deletes the configured list of credentials from the given target
 func (config *Configuration) DeleteListOfCredentials(target targets.Target) error {
-	// This will either be nil or a multierror which aggregates errors
-	var error_accumulator error
+	// We will use this to accumulate errors that happen if config.StopOnError is set to false
+	// the multierror.Error implements error so we use the interface to type the accumulator
+	var errorAccumulator error
 	for _, id := range config.CredentialsToDelete {
 		if targets.HasCredential(target, id) {
 			logger.Log.Infof("[%s] Deleting %s", target.GetName(), id)
@@ -21,13 +22,13 @@ func (config *Configuration) DeleteListOfCredentials(target targets.Target) erro
 				if config.StopOnError {
 					return err
 				}
-				error_accumulator = multierror.Append(error_accumulator, err)
+				errorAccumulator = multierror.Append(errorAccumulator, err)
 				logger.Log.Error(err)
 			}
 		}
 	}
 
-	return error_accumulator
+	return errorAccumulator
 }
 
 // UpdateListOfCredentials syncs the given list of credentials to the given target
@@ -41,8 +42,9 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 		return false
 	}
 
-	// This will either be nil or a multierror which aggregates errors
-	var error_accumulator error
+	// We will use this to accumulate errors that happen if config.StopOnError is set to false
+	// the multierror.Error implements error so we use the interface to type the accumulator
+	var errorAccumulator error
 	for _, credentials := range listOfCredentials {
 		logger.Log.Infof("[%s] Syncing %s", target.GetName(), credentials.GetTargetID())
 		if err := target.UpdateCredentials(credentials); err != nil {
@@ -50,7 +52,7 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 			if config.StopOnError {
 				return err
 			}
-			error_accumulator = multierror.Append(error_accumulator, err)
+			errorAccumulator = multierror.Append(errorAccumulator, err)
 			logger.Log.Error(err)
 		}
 	}
@@ -68,7 +70,7 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 					if config.StopOnError {
 						return err
 					}
-					error_accumulator = multierror.Append(error_accumulator, err)
+					errorAccumulator = multierror.Append(errorAccumulator, err)
 					logger.Log.Error(err)
 				}
 			} else {
@@ -77,5 +79,5 @@ func (config *Configuration) UpdateListOfCredentials(target targets.Target, list
 		}
 	}
 
-	return error_accumulator
+	return errorAccumulator
 }

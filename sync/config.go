@@ -51,15 +51,16 @@ func (config *Configuration) Sync() error {
 	for _, target := range allTargets {
 		go config.initTarget(target, creds, initChannel)
 	}
-	// This will later become a multierror object or stay nil, this is intended
-	var error_accumulator error
+	// We will use this to accumulate errors that happen if config.StopOnError is set to false
+	// the multierror.Error implements error so we use the interface to type the accumulator
+	var errorAccumulator error
 	for i := 0; i < len(allTargets); i++ {
 		initTarget := <-initChannel
 		if err, ok := initTarget.(error); ok {
 			if config.StopOnError {
 				return err
 			}
-			error_accumulator = multierror.Append(error_accumulator, err)
+			errorAccumulator = multierror.Append(errorAccumulator, err)
 			logger.Log.Error(err)
 		} else {
 			validTargets = append(validTargets, initTarget.(targets.Target))
@@ -79,7 +80,7 @@ func (config *Configuration) Sync() error {
 			if config.StopOnError {
 				return err
 			}
-			error_accumulator = multierror.Append(error_accumulator, err)
+			errorAccumulator = multierror.Append(errorAccumulator, err)
 		}
 	}
 
@@ -89,7 +90,7 @@ func (config *Configuration) Sync() error {
 	}
 
 	// This is either a nil, or a collection of past errors which we want to bubble up
-	return error_accumulator
+	return errorAccumulator
 }
 
 func (config *Configuration) initTarget(target targets.Target, creds []credentials.Credentials, channel chan interface{}) {
@@ -109,10 +110,11 @@ func (config *Configuration) initTarget(target targets.Target, creds []credentia
 }
 
 func (config *Configuration) syncCredentials(target targets.Target, credentialsList []credentials.Credentials, parallelismChannel chan bool, errorChannel chan error) {
-	// This will either be nil or a multierror which aggregates errors
-	var error_accumulator error
+	// We will use this to accumulate errors that happen if config.StopOnError is set to false
+	// the multierror.Error implements error so we use the interface to type the accumulator
+	var errorAccumulator error
 	defer func() {
-		errorChannel <- error_accumulator
+		errorChannel <- errorAccumulator
 		<-parallelismChannel
 	}()
 
@@ -124,13 +126,13 @@ func (config *Configuration) syncCredentials(target targets.Target, credentialsL
 	}
 
 	if err := config.UpdateListOfCredentials(target, filteredCredentials); err != nil {
-		error_accumulator = multierror.Append(error_accumulator, err)
+		errorAccumulator = multierror.Append(errorAccumulator, err)
 		if config.StopOnError {
 			return
 		}
 	}
 	if err := config.DeleteListOfCredentials(target); err != nil {
-		error_accumulator = multierror.Append(error_accumulator, err)
+		errorAccumulator = multierror.Append(errorAccumulator, err)
 		if config.StopOnError {
 			return
 		}

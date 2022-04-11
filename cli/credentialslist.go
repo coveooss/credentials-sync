@@ -15,17 +15,20 @@ var (
 var listCredentialsCmd = &cobra.Command{
 	Use:   "list-credentials",
 	Short: "Resolves and lists all configured credentials",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if err := configuration.Sources.ValidateConfiguration(); err != nil {
-			logger.Log.Fatalf("The sources section of the config file is invalid: %v", err)
+			logger.Log.Errorf("The sources section of the config file is invalid: %v", err)
+			return err
 		}
 		allCredentials, err := configuration.Sources.Credentials()
 		if err != nil {
-			panic(err)
+			logger.Log.Errorf("The credential extraction for all configured sources failed: %v", err)
+			return err
 		}
 		for _, credentials := range allCredentials {
 			fmt.Println(credentials.ToString(showSensitiveAttributes))
 		}
+		return nil
 	},
 }
 

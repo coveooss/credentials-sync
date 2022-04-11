@@ -6,6 +6,7 @@ import (
 	"github.com/coveooss/credentials-sync/credentials"
 	"github.com/coveooss/credentials-sync/logger"
 	"github.com/coveooss/credentials-sync/targets"
+	"github.com/hashicorp/go-multierror"
 )
 
 // Configuration represents the parsed configuration file given to the application
@@ -50,12 +51,16 @@ func (config *Configuration) Sync() error {
 	for _, target := range allTargets {
 		go config.initTarget(target, creds, initChannel)
 	}
+	// We will use this to accumulate errors that happen if config.StopOnError is set to false
+	// the multierror.Error implements error so we use the interface to type the accumulator
+	var errorAccumulator error
 	for i := 0; i < len(allTargets); i++ {
 		initTarget := <-initChannel
 		if err, ok := initTarget.(error); ok {
 			if config.StopOnError {
 				return err
 			}
+			errorAccumulator = multierror.Append(errorAccumulator, err)
 			logger.Log.Error(err)
 		} else {
 			validTargets = append(validTargets, initTarget.(targets.Target))
@@ -72,7 +77,10 @@ func (config *Configuration) Sync() error {
 		// Check for errors. Errors are only passed back if StopOnError is true so this should always return
 		err := <-errorChannel
 		if err != nil {
-			return err
+			if config.StopOnError {
+				return err
+			}
+			errorAccumulator = multierror.Append(errorAccumulator, err)
 		}
 	}
 
@@ -81,7 +89,8 @@ func (config *Configuration) Sync() error {
 		parallelismChannel <- true
 	}
 
-	return nil
+	// This is either a nil, or a collection of past errors which we want to bubble up
+	return errorAccumulator
 }
 
 func (config *Configuration) initTarget(target targets.Target, creds []credentials.Credentials, channel chan interface{}) {
@@ -101,9 +110,11 @@ func (config *Configuration) initTarget(target targets.Target, creds []credentia
 }
 
 func (config *Configuration) syncCredentials(target targets.Target, credentialsList []credentials.Credentials, parallelismChannel chan bool, errorChannel chan error) {
-	var err error
+	// We will use this to accumulate errors that happen if config.StopOnError is set to false
+	// the multierror.Error implements error so we use the interface to type the accumulator
+	var errorAccumulator error
 	defer func() {
-		errorChannel <- err
+		errorChannel <- errorAccumulator
 		<-parallelismChannel
 	}()
 
@@ -114,12 +125,17 @@ func (config *Configuration) syncCredentials(target targets.Target, credentialsL
 		}
 	}
 
-	if err = config.UpdateListOfCredentials(target, filteredCredentials); err != nil {
-		return
+	if err := config.UpdateListOfCredentials(target, filteredCredentials); err != nil {
+		errorAccumulator = multierror.Append(errorAccumulator, err)
+		if config.StopOnError {
+			return
+		}
 	}
-	if err = config.DeleteListOfCredentials(target); err != nil {
-		return
+	if err := config.DeleteListOfCredentials(target); err != nil {
+		errorAccumulator = multierror.Append(errorAccumulator, err)
+		if config.StopOnError {
+			return
+		}
 	}
-
 	logger.Log.Infof("Finished sync to %s", target.GetName())
 }

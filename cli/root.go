@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/url"
-	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -34,6 +33,8 @@ var rootCmd = &cobra.Command{
 	syncs them to the given targets. This CLI is useful for
 	targets that do not support external credentials.
 	Support Jenkins only for now.`,
+	SilenceUsage:  true,
+	SilenceErrors: true,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		var (
 			configurationDict = map[string]interface{}{}
@@ -129,8 +130,6 @@ func init() {
 func Execute(commit string, date string, version string) {
 	rootCmd.Version = fmt.Sprintf("%s %s (%s)", version, commit, date)
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
-		logger.Log.Error(err)
-		os.Exit(1)
+		logger.Log.Fatal("Credential sync failed, the errors encountered are listed above.")
 	}
 }

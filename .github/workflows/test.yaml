@@ -1,0 +1,27 @@
+name: Run Tests
+on:
+  # https://docs.github.com/en/actions/reference/events-that-trigger-workflows#pull_request
+  pull_request:
+    types: [edited, opened, synchronize, reopened]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Build
+        env:
+          CGO_ENABLED: 0
+        run: go build -v
+
+      - name: Run Tests
+        run: |
+          bash ./test.sh

@@ -7,7 +7,7 @@ require (
 	github.com/bndr/gojenkins v1.0.1
 	github.com/evalphobia/logrus_sentry v0.8.2
 	github.com/getsentry/sentry-go v0.13.0
-	github.com/golang/mock v1.4.4
+	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/mitchellh/mapstructure v1.4.1
 	github.com/sirupsen/logrus v1.7.0

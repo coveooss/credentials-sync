@@ -2,8 +2,9 @@ package cli
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/url"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -76,11 +77,11 @@ var rootCmd = &cobra.Command{
 				return fmt.Errorf("Failed to download the config file from S3, %v", err)
 			}
 
-			if fileContent, err = ioutil.ReadAll(resp.Body); err != nil {
+			if fileContent, err = io.ReadAll(resp.Body); err != nil {
 				return fmt.Errorf("Failed to read the config file from S3, %v", err)
 			}
 		} else {
-			if fileContent, err = ioutil.ReadFile(configurationFile); err != nil {
+			if fileContent, err = os.ReadFile(configurationFile); err != nil {
 				return err
 			}
 		}

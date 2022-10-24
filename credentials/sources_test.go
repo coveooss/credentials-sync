@@ -1,7 +1,6 @@
 package credentials
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 	"sort"
@@ -13,13 +12,13 @@ import (
 )
 
 func TestSourcesConfigWithLocalSource(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "")
+	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		panic(err)
 	}
 	defer os.RemoveAll(tempDir)
 	filePath := path.Join(tempDir, "local_file.json")
-	ioutil.WriteFile(filePath, []byte(`[{"id": "test", "type": "secret", "description": "test-desc", "secret": "my secret"}]`), 0777)
+	os.WriteFile(filePath, []byte(`[{"id": "test", "type": "secret", "description": "test-desc", "secret": "my secret"}]`), 0777)
 	localSource := &LocalSource{
 		File: filePath,
 	}

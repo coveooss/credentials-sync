@@ -2,7 +2,6 @@ package credentials
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 )
 
@@ -34,7 +33,7 @@ func getCredentialsFromFile(fileName string) ([]Credentials, error) {
 		err         error
 		fileContent []byte
 	)
-	if fileContent, err = ioutil.ReadFile(fileName); err != nil {
+	if fileContent, err = os.ReadFile(fileName); err != nil {
 		return nil, err
 	}
 	return getCredentialsFromBytes(fileContent)

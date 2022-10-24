@@ -2,7 +2,7 @@ package credentials
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials/stscreds"
@@ -41,7 +41,7 @@ func (source *AWSS3Source) Credentials() ([]Credentials, error) {
 	if err != nil {
 		return nil, err
 	}
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}

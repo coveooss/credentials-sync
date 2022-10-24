@@ -2,7 +2,7 @@ package credentials
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"strings"
 	"testing"
 
@@ -66,7 +66,7 @@ func (m *mockS3Client) GetObject(input *s3.GetObjectInput) (*s3.GetObjectOutput,
 	assert.Equal(m.t, s3Bucket, *input.Bucket)
 	assert.Equal(m.t, s3Key, *input.Key)
 
-	return &s3.GetObjectOutput{Body: ioutil.NopCloser(strings.NewReader(`test_cred:
+	return &s3.GetObjectOutput{Body: io.NopCloser(strings.NewReader(`test_cred:
   type: usernamepassword
   description: a credential
   username: user

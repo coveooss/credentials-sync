@@ -1,7 +1,6 @@
 package credentials
 
 import (
-	"io/ioutil"
 	"os"
 	"path"
 	"testing"
@@ -10,7 +9,7 @@ import (
 )
 
 func TestGetCredentialsFromLocalSource(t *testing.T) {
-	tempDir, err := ioutil.TempDir("", "")
+	tempDir, err := os.MkdirTemp("", "")
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +22,7 @@ func TestGetCredentialsFromLocalSource(t *testing.T) {
 	assert.Equal(t, "Local file", localSource.Type())
 	assert.Error(t, localSource.ValidateConfiguration())
 
-	ioutil.WriteFile(filePath, []byte(`test_cred:
+	os.WriteFile(filePath, []byte(`test_cred:
   type: usernamepassword
   description: a credential
   username: user

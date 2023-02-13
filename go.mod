@@ -6,7 +6,7 @@ require (
 	github.com/aws/aws-sdk-go v1.44.194
 	github.com/bndr/gojenkins v1.0.1
 	github.com/evalphobia/logrus_sentry v0.8.2
-	github.com/getsentry/sentry-go v0.17.0
+	github.com/getsentry/sentry-go v0.18.0
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-multierror v1.1.0
 	github.com/mitchellh/mapstructure v1.5.0

@@ -6,7 +6,7 @@ import (
 
 	"github.com/coveooss/credentials-sync/logger"
 	"github.com/hashicorp/go-multierror"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 // Source represents a location to fetch credentials

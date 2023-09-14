@@ -3,12 +3,12 @@ module github.com/coveooss/credentials-sync
 go 1.18
 
 require (
-	github.com/aws/aws-sdk-go v1.44.317
-	github.com/bndr/gojenkins v1.0.1
+	github.com/aws/aws-sdk-go v1.45.10
+	github.com/bndr/gojenkins v1.1.0
 	github.com/evalphobia/logrus_sentry v0.8.2
-	github.com/getsentry/sentry-go v0.23.0
+	github.com/getsentry/sentry-go v0.24.1
 	github.com/golang/mock v1.6.0
-	github.com/hashicorp/go-multierror v1.1.0
+	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.7.0

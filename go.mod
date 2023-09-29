@@ -41,4 +41,4 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )
 
-replace github.com/bndr/gojenkins => github.com/julienduchesne/gojenkins v2.1.0+incompatible
+replace github.com/bndr/gojenkins => github.com/coveooss/gojenkins v2.1.0+incompatible

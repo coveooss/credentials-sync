@@ -158,11 +158,20 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 	default:
 		return nil, fmt.Errorf("entry %s: unknown credentials type: %s", id, credentialsType)
 	}
-	err := mapstructure.Decode(credentialsMap, credentials)
+	var validationErrors error
+	delete(credentialsMap, "type")
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		ErrorUnused: true,
+		Metadata:    nil,
+		Result:      credentials})
 	if err != nil {
+		validationErrors = multierror.Append(validationErrors, fmt.Errorf("entry %s: unable to create a decoder: %v", id, err))
+	}
+	if err := decoder.Decode(credentialsMap); err != nil {
 		return nil, fmt.Errorf("entry %s: invalid credentials data: %v", id, err)
 	}
-	var validationErrors error
+	credentialsMap["type"] = credentialsType
+
 	if err := credentials.BaseValidate(); err != nil {
 		validationErrors = multierror.Append(validationErrors, err)
 	}

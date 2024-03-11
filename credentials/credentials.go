@@ -168,7 +168,7 @@ func ParseSingleCredentials(credentialsMap map[string]interface{}) (Credentials,
 		validationErrors = multierror.Append(validationErrors, fmt.Errorf("entry %s: unable to create a decoder: %v", id, err))
 	}
 	if err := decoder.Decode(credentialsMap); err != nil {
-		return nil, fmt.Errorf("entry %s: invalid credentials data: %v", id, err)
+		return nil, fmt.Errorf("entry %s: invalid credentials data: %w", id, err)
 	}
 	credentialsMap["type"] = credentialsType
 

@@ -26,7 +26,7 @@ func TestSourcesConfigWithLocalSource(t *testing.T) {
 	sourcesConfig := SourcesConfiguration{LocalSources: []*LocalSource{localSource}}
 
 	credentials, err := sourcesConfig.Credentials()
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, []Credentials{testCredentials[0]}, credentials)
 }
 
@@ -110,7 +110,7 @@ func TestGetCredentialsFromBytes(t *testing.T) {
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
-				assert.Nil(t, err)
+				assert.NoError(t, err)
 			}
 			var expectedAsMaps []map[string]interface{}
 			var gottenAsMaps []map[string]interface{}

@@ -15,7 +15,7 @@ func TestParsSecretCredentialsFromValue(t *testing.T) {
 		"value": "my secret",
 	})
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	cred := credInterface.(*SecretTextCredentials)
 
 	assert.Equal(t, "my secret", cred.Secret)

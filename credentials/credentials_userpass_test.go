@@ -15,7 +15,7 @@ func TestParseUserPassCredentialsFromValue(t *testing.T) {
 		"value": "user:pass",
 	})
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	cred := credInterface.(*UsernamePasswordCredentials)
 
 	assert.Equal(t, "user", cred.Username)

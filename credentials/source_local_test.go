@@ -35,6 +35,6 @@ func TestGetCredentialsFromLocalSource(t *testing.T) {
 	expectedCred.Description = "a credential"
 	expectedCred.Username = "user"
 	expectedCred.Password = "pass"
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, []Credentials{expectedCred}, credentials)
 }

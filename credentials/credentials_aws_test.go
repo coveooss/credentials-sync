@@ -15,7 +15,7 @@ func TestParseAwsCredentialsFromValue(t *testing.T) {
 		"value": "key:secret",
 	})
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	cred := credInterface.(*AmazonWebServicesCredentials)
 
 	assert.Equal(t, "key", cred.AccessKey)
@@ -50,7 +50,7 @@ func TestAwsCredentialsValidationErrors(t *testing.T) {
 	// All OK
 	credMap["secret_key"] = "secret"
 	_, err = ParseSingleCredentials(credMap)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	// No access key
 	delete(credMap, "access_key")
@@ -87,7 +87,7 @@ func TestCredentialWithTargetTags(t *testing.T) {
 	}
 
 	cred, err := ParseSingleCredentials(credMap)
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 
 	assert.Equal(t, &AmazonWebServicesCredentials{
 		Base: Base{

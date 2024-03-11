@@ -123,7 +123,7 @@ func TestGetCredentialsFromSecretsManagerSourceWithPrefix(t *testing.T) {
 	credentials, err := secretsManagerSource.Credentials()
 	sort.Slice(credentials, func(i, j int) bool { return credentials[i].GetID() < credentials[j].GetID() })
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, expectedSecretsManagerCredentials, credentials)
 }
 
@@ -138,7 +138,7 @@ func TestGetCredentialsFromSecretsManagerSourceWithID(t *testing.T) {
 	credentials, err := secretsManagerSource.Credentials()
 	sort.Slice(credentials, func(i, j int) bool { return credentials[i].GetID() < credentials[j].GetID() })
 
-	assert.Nil(t, err)
+	assert.NoError(t, err)
 	assert.Equal(t, testCredentials, credentials)
 }
 

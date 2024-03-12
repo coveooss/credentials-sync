@@ -3,7 +3,7 @@ module github.com/coveooss/credentials-sync
 go 1.21
 
 require (
-	github.com/aws/aws-sdk-go v1.50.26
+	github.com/aws/aws-sdk-go v1.50.37
 	github.com/bndr/gojenkins v1.1.0
 	github.com/evalphobia/logrus_sentry v0.8.2
 	github.com/getsentry/sentry-go v0.27.0
@@ -13,7 +13,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.18.2
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 

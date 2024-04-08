@@ -1,5 +1,5 @@
-github.com/aws/aws-sdk-go v1.50.37 h1:gnAf6eYPSTb4QpVwugtWFqD07QXOoX7LewRrtLUx3lI=
-github.com/aws/aws-sdk-go v1.50.37/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
+github.com/aws/aws-sdk-go v1.51.17 h1:Cfa40lCdjv9OxC3X1Ks3a6O1Tu3gOANSyKHOSw/zuWU=
+github.com/aws/aws-sdk-go v1.51.17/go.mod h1:LF8svs817+Nz+DmiMQKTO3ubZ/6IaTpq3TjupRn3Eqk=
 github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d h1:S2NE3iHSwP0XV47EEXL8mWmRdEfGscSJ+7EgePNgt0s=
 github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d/go.mod h1:sGbDF6GwGcLpkNXPUTkMRoywsNa/ol15pxFe6ERfguA=
 github.com/coveooss/gojenkins v2.1.0+incompatible h1:fFAW1nyhNvbY7p8QP07C4CZDh1sqmGHlKFjBo9KE3q8=

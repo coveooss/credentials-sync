@@ -3,10 +3,10 @@ module github.com/coveooss/credentials-sync
 go 1.21
 
 require (
-	github.com/aws/aws-sdk-go v1.51.17
+	github.com/aws/aws-sdk-go v1.53.12
 	github.com/bndr/gojenkins v1.1.0
 	github.com/evalphobia/logrus_sentry v0.8.2
-	github.com/getsentry/sentry-go v0.27.0
+	github.com/getsentry/sentry-go v0.28.0
 	github.com/golang/mock v1.6.0
 	github.com/hashicorp/go-multierror v1.1.1
 	github.com/mitchellh/mapstructure v1.5.0
@@ -40,8 +40,8 @@ require (
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.9.0 // indirect
 	golang.org/x/exp v0.0.0-20230905200255-921286631fa9 // indirect
-	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 )

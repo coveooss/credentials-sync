@@ -1,4 +1,4 @@
-FROM alpine@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6
+FROM alpine@sha256:be2656061b536c1883c4034790e21d0a09c5aaaf51968b89368a3c0371ea2c9a
 
 # ca-certificates is needed to download files from S3
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
